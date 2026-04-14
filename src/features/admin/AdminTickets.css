@@ -1,0 +1,330 @@
+/* =========================================
+   NOTE: The main layout and table for AdminTickets 
+   have been migrated to Tailwind utilities.
+   This file now only contains styles for 
+   the Drawer (Ticket Detail) and Modals.
+   ========================================= */
+
+/* DETAIL DRAWER OVERLAY */
+.ticket-drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    display: flex;
+    justify-content: flex-end;
+    /* Drawer slides from right */
+}
+
+.ticket-drawer-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ticket-drawer {
+    width: 600px;
+    max-width: 90vw;
+    height: 100%;
+    background: white;
+    box-shadow: -10px 0 25px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.ticket-drawer-overlay.open .ticket-drawer {
+    transform: translateX(0);
+}
+
+/* Drawer Header */
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-light);
+    background: #f8fafc;
+}
+
+.dh-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dh-id {
+    font-family: monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+}
+
+.dh-right {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    background: #e2e8f0;
+    color: var(--text-dark);
+}
+
+/* Drawer Content */
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.detail-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+}
+
+.description-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    margin: 0;
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.info-card {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ic-header {
+    background: #f8fafc;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ic-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ic-body strong {
+    color: var(--primary-deep);
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
+}
+
+.ic-body span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Assignment */
+.assignment-section {
+    background: #f0fdf4;
+    /* Light green tint */
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.assignment-section label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #166534;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.assignee-select-mock {
+    background: white;
+    border: 1px solid #86efac;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #166534;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Timeline */
+.timeline-section h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--primary-deep);
+    margin: 0 0 1.5rem 0;
+    border-bottom: 2px solid var(--border-light);
+    padding-bottom: 0.5rem;
+}
+
+.timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    padding-left: 14px;
+}
+
+/* Vertical line behind dots */
+.timeline-list::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    /* 14px padding + 3px to center on the 6px dot */
+    top: 10px;
+    bottom: 20px;
+    width: 2px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.timeline-item {
+    position: relative;
+    z-index: 2;
+}
+
+.tl-dot {
+    position: absolute;
+    left: -14px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--brand-blue);
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #e2e8f0;
+}
+
+.timeline-item.initial .tl-dot {
+    background: #94a3b8;
+}
+
+.tl-content {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tl-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.tl-name {
+    font-weight: 700;
+    color: var(--primary-deep);
+}
+
+.tl-date {
+    color: var(--text-muted);
+}
+
+.tl-status-badge {
+    display: inline-block;
+    background: #f1f5f9;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.tl-message {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+/* Drawer Footer */
+.drawer-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-light);
+    background: #f8fafc;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.btn-secondary {
+    background: white;
+    border: 1px solid var(--border-light);
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f1f5f9;
+}
+
+.btn-primary {
+    background: var(--brand-blue);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #004fb3;
+}

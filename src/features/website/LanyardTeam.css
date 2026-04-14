@@ -1,0 +1,386 @@
+/* ==============================================
+   LANYARD TEAM PAGE — CSS Flip Badge Cards
+   ============================================== */
+
+/* Dark section */
+.lanyards-section {
+    background: #07112A;
+    padding-bottom: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.lanyards-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 50% at 15% 60%, rgba(26, 77, 180, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 25%, rgba(232, 25, 44, 0.07) 0%, transparent 55%);
+    pointer-events: none;
+}
+
+/* Rail bar across top */
+.lanyards-rail-bar {
+    width: 100%;
+    background: linear-gradient(90deg, #0D1B3E 0%, #1A4DB4 50%, #0D1B3E 100%);
+    padding: 12px 32px;
+    text-align: center;
+    border-top: 3px solid #E8192C;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.lanyards-rail-text {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.40);
+    text-transform: uppercase;
+}
+
+/* 5-column grid for 10 members */
+.lanyards-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding: 20px 0 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Item wrapper */
+.lc-item {
+    display: flex;
+    justify-content: center;
+}
+
+/* Alternating low cards */
+.lc-item--low {
+    padding-top: 72px;
+}
+
+/* The whole hanging unit (cord + card) — swaying */
+.lc-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-origin: top center;
+    animation: lc-sway 5.5s ease-in-out infinite;
+    animation-delay: var(--sway-delay, 0s);
+}
+
+.lc-unit:hover {
+    animation-play-state: paused;
+}
+
+@keyframes lc-sway {
+
+    0%,
+    100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+/* Lanyard cord */
+.lc-cord {
+    width: 3px;
+    height: 60px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* ── Flip card container ── */
+.lc-card {
+    width: 190px;
+    height: 300px;
+    perspective: 1200px;
+    cursor: pointer;
+    border-radius: 20px;
+    filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.55));
+    transition: filter 0.3s ease;
+    flex-shrink: 0;
+}
+
+.lc-card:hover {
+    filter: drop-shadow(0 16px 40px rgba(0, 0, 0, 0.7));
+}
+
+.lc-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lc-card:hover .lc-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* Shared face */
+.lc-front,
+.lc-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 14px 14px;
+    overflow: hidden;
+}
+
+/* ── FRONT ── */
+.lc-front {
+    background: #FFFFFF;
+    border: 2px solid #E8EDF5;
+}
+
+.lc-clip-hole {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #E2E8F0;
+    border: 3px solid #CBD5E1;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.lc-dept-pill {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.lc-avatar-ring {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    background: #E8EDF5;
+}
+
+.lc-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.lc-initials {
+    font-size: 22px;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    line-height: 1;
+}
+
+.lc-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0D1B3E;
+    text-align: center;
+    line-height: 1.3;
+    margin-bottom: 5px;
+}
+
+.lc-role {
+    font-size: 12px;
+    color: #E8192C;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.lc-card-logo {
+    margin-top: 10px;
+    width: 70px;
+    height: auto;
+    object-fit: contain;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+/* ── BACK ── */
+.lc-back {
+    background: linear-gradient(150deg, #0D1B3E 0%, #0b1633 70%, #12204A 100%);
+    border: 2px solid rgba(255, 255, 255, 0.07);
+    transform: rotateY(180deg);
+}
+
+.lc-back-avatar-sm {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+    opacity: 0.92;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lc-back-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    text-align: center;
+    line-height: 1.25;
+    margin-bottom: 5px;
+}
+
+.lc-back-rule {
+    width: 32px;
+    height: 2.5px;
+    background: #E8192C;
+    border-radius: 2px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.lc-back-role {
+    font-size: 11.5px;
+    color: rgba(232, 25, 44, 0.9);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1.35;
+    flex-shrink: 0;
+}
+
+.lc-spec-row {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 9px;
+}
+
+.lc-spec-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.40);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 2px;
+}
+
+.lc-spec-val {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.lc-spec-exp {
+    color: #93C5FD;
+    font-weight: 700;
+}
+
+.lc-back-brand {
+    margin-top: auto;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: rgba(255, 255, 255, 0.30);
+    text-transform: uppercase;
+    text-align: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Global hint */
+.lanyards-hint-global {
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.28);
+    margin-top: 20px;
+    letter-spacing: 0.3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+    .lanyards-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
+
+    .lc-card {
+        width: 175px;
+        height: 290px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .lanyards-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .lc-item--low:nth-child(3n) {
+        padding-top: 0;
+    }
+
+    .lc-card {
+        width: 190px;
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .lanyards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .lc-card {
+        width: 170px;
+        height: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lc-card {
+        width: 148px;
+        height: 260px;
+    }
+
+    .lc-avatar-ring {
+        width: 60px;
+        height: 60px;
+    }
+
+    .lc-initials {
+        font-size: 17px;
+    }
+
+    .lc-item--low {
+        padding-top: 44px;
+    }
+}
