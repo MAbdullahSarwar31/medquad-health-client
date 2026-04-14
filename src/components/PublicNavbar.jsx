@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import WhatsAppButton from './WhatsAppButton';
 import './PublicLayout.css';
@@ -17,14 +17,47 @@ const NAV_LINKS = [
 export default function PublicNavbar() {
     const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [closing, setClosing] = useState(false);
+    const closeTimer = useRef(null);
 
+    // Scroll handler — shrink navbar + close menu on scroll
     useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', onScroll);
+        const onScroll = () => {
+            setScrolled(window.scrollY > 20);
+            if (mobileOpen) triggerClose();
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
-    }, []);
+    }, [mobileOpen]);
+
+    // Body scroll lock when menu open
+    useEffect(() => {
+        document.body.style.overflow = mobileOpen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [mobileOpen]);
+
+    // Close on route change
+    useEffect(() => {
+        triggerClose();
+    }, [location.pathname]);
+
+    const triggerClose = () => {
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        setClosing(true);
+        closeTimer.current = setTimeout(() => {
+            setMobileOpen(false);
+            setClosing(false);
+        }, 230);
+    };
+
+    const triggerOpen = () => {
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        setClosing(false);
+        setMobileOpen(true);
+    };
 
     const getDashboardPath = () => {
         if (user?.role === 'admin') return '/admin';
@@ -36,12 +69,12 @@ export default function PublicNavbar() {
         <header className={`pub-nav ${scrolled ? 'pub-nav--scrolled' : ''}`}>
             <div className="pub-nav-inner">
                 {/* Logo */}
-                <Link to="/" className="pub-nav-logo">
+                <Link to="/" className="pub-nav-logo" aria-label="MedQuad Health — Home">
                     <img src="/logo.png" alt="Medquad Health Solutions" />
                 </Link>
 
                 {/* Desktop links */}
-                <nav className="pub-nav-links">
+                <nav className="pub-nav-links" aria-label="Main navigation">
                     {NAV_LINKS.map(({ to, label, end }) => (
                         <NavLink
                             key={to}
@@ -59,10 +92,7 @@ export default function PublicNavbar() {
                 {/* CTA */}
                 <div className="pub-nav-actions">
                     {isAuthenticated ? (
-                        <button
-                            className="pub-nav-btn"
-                            onClick={() => navigate(getDashboardPath())}
-                        >
+                        <button className="pub-nav-btn" onClick={() => navigate(getDashboardPath())}>
                             Go to Portal →
                         </button>
                     ) : (
@@ -76,43 +106,49 @@ export default function PublicNavbar() {
                     )}
                 </div>
 
-                {/* Hamburger */}
+                {/* Hamburger → X */}
                 <button
-                    className="pub-nav-hamburger"
-                    onClick={() => setMobileOpen(!mobileOpen)}
-                    aria-label="Toggle menu"
+                    className={`pub-nav-hamburger ${mobileOpen ? 'is-open' : ''}`}
+                    onClick={() => mobileOpen ? triggerClose() : triggerOpen()}
+                    aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                    aria-expanded={mobileOpen}
                 >
-                    <span className={`pub-hamburger-line ${mobileOpen ? 'open' : ''}`} />
-                    <span className={`pub-hamburger-line ${mobileOpen ? 'open' : ''}`} />
-                    <span className={`pub-hamburger-line ${mobileOpen ? 'open' : ''}`} />
+                    <span className="pub-ham-line" />
+                    <span className="pub-ham-line" />
+                    <span className="pub-ham-line" />
                 </button>
             </div>
 
-            {/* Mobile Drawer */}
-            {mobileOpen && (
-                <div className="pub-mobile-menu">
-                    {NAV_LINKS.map(({ to, label, end }) => (
-                        <NavLink
-                            key={to}
-                            to={to}
-                            end={end}
-                            className={({ isActive }) =>
-                                `pub-mobile-link ${isActive ? 'pub-mobile-link--active' : ''}`
-                            }
-                            onClick={() => setMobileOpen(false)}
-                        >
-                            {label}
-                        </NavLink>
-                    ))}
+            {/* Mobile Drawer — stays in DOM during close animation */}
+            {(mobileOpen || closing) && (
+                <div className={`pub-mobile-menu ${closing ? 'is-closing' : 'is-open'}`}>
+                    <nav aria-label="Mobile navigation">
+                        {NAV_LINKS.map(({ to, label, end }) => (
+                            <NavLink
+                                key={to}
+                                to={to}
+                                end={end}
+                                className={({ isActive }) =>
+                                    `pub-mobile-link ${isActive ? 'pub-mobile-link--active' : ''}`
+                                }
+                                onClick={triggerClose}
+                            >
+                                {label}
+                            </NavLink>
+                        ))}
+                    </nav>
                     <div className="pub-mobile-actions">
                         {isAuthenticated ? (
-                            <button className="pub-nav-btn" onClick={() => { navigate(getDashboardPath()); setMobileOpen(false); }}>
+                            <button
+                                className="pub-nav-btn pub-mobile-full-btn"
+                                onClick={() => { navigate(getDashboardPath()); triggerClose(); }}
+                            >
                                 Go to Portal →
                             </button>
                         ) : (
                             <>
-                                <Link to="/login" className="pub-mobile-login" onClick={() => setMobileOpen(false)}>Login</Link>
-                                <Link to="/contact" className="pub-nav-btn" onClick={() => setMobileOpen(false)}>Get a Quote</Link>
+                                <Link to="/login" className="pub-mobile-login" onClick={triggerClose}>Login</Link>
+                                <Link to="/contact" className="pub-nav-btn" onClick={triggerClose}>Get a Quote</Link>
                                 <div className="nav-wa-wrap-mobile">
                                     <WhatsAppButton />
                                 </div>

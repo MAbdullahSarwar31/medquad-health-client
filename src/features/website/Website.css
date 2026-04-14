@@ -41,7 +41,7 @@
 }
 
 .home-hero-content {
-    padding: 80px 32px 160px;
+    padding: clamp(48px, 8vh, 80px) clamp(16px, 4vw, 32px) clamp(130px, 17vh, 165px);
     animation: fadeSlideUp 0.7s ease both;
     position: relative;
     z-index: 2;
@@ -63,11 +63,11 @@
 }
 
 .home-hero-title {
-    font-size: 62px;
+    font-size: clamp(30px, 6.5vw, 62px);
     font-weight: 900;
     color: white;
     line-height: 1.13;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
     margin-bottom: 16px;
 }
 
@@ -1213,8 +1213,8 @@
 }
 .team-card-v2:hover {
     border-color: var(--brand-red);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(232,25,44,0.12);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(232, 25, 44, 0.14), 0 0 0 3px rgba(232, 25, 44, 0.08);
 }
 .team-card-v2--active { border-color: var(--brand-red) !important; box-shadow: 0 8px 28px rgba(232,25,44,0.18) !important; }
 .tc2-avatar {
@@ -1245,3 +1245,111 @@
     .team-grid-v2 { grid-template-columns: 1fr 1fr; }
     .lanyard-canvas-wrap { height: 420px; }
 }
+
+/* ============================================================
+   MOBILE & DESIGN OVERRIDES  (appended)
+   ============================================================ */
+
+/* Stats bar — equal cells with dividers */
+.home-stats-inner {
+    padding: 0;
+    gap: 0;
+    flex-wrap: nowrap;
+}
+.home-stat {
+    flex: 1;
+    padding: 20px clamp(14px, 2.5vw, 28px);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+.home-stat:last-child { border-right: none; }
+.home-stat-value { font-size: clamp(20px, 3vw, 30px); }
+.home-stat-label {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Service card — bottom accent on hover instead of uniform lift */
+.service-card {
+    border-bottom: 3px solid transparent;
+    transition: box-shadow 250ms ease, transform 250ms ease, border-color 250ms ease;
+}
+.service-card:hover {
+    box-shadow: 0 20px 56px rgba(13, 27, 62, 0.13);
+    transform: translateY(-5px);
+    border-bottom-color: var(--brand-red);
+}
+
+/* Products tabs — horizontal scroll, no wrap */
+.products-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+}
+.products-tabs::-webkit-scrollbar { display: none; }
+.products-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 44px;
+}
+
+/* Team card ring glow */
+.team-card:hover {
+    box-shadow: 0 16px 40px rgba(13, 27, 62, 0.14), 0 0 0 2px rgba(232, 25, 44, 0.1);
+    transform: translateY(-5px);
+}
+
+/* ── Tablet portrait (768px) ── */
+@media (max-width: 768px) {
+    .home-hero-title  { font-size: clamp(28px, 6vw, 44px); }
+    .home-hero-content { padding: 60px 24px clamp(115px, 16vh, 150px); }
+    .contact-form-row  { grid-template-columns: 1fr; }
+}
+
+/* ── Large mobile (600px) ── */
+@media (max-width: 600px) {
+    .services-grid { grid-template-columns: 1fr; }
+
+    .home-stats-inner { flex-wrap: wrap; }
+    .home-stat {
+        flex: 1 1 calc(50% - 1px);
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .home-stat:nth-child(odd)        { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+    .home-stat:last-child            { border-bottom: none; }
+    .home-stat:nth-last-child(2)     { border-bottom: none; }
+
+    .team-grid { grid-template-columns: 1fr 1fr; }
+    .home-hero-title { font-size: clamp(26px, 7vw, 36px); }
+}
+
+/* ── Mobile (480px) ── */
+@media (max-width: 480px) {
+    .home-hero-content  { padding: 52px 16px clamp(105px, 15vh, 135px); }
+    .home-hero-badge    { font-size: 11px; padding: 6px 14px; }
+    .home-hero-desc     { font-size: 14px; }
+    .home-hero-btns     { flex-direction: column; }
+
+    .about-timeline::before          { left: 16px; }
+    .about-timeline-item,
+    .about-timeline-item.right       { padding: 0 0 0 44px; }
+    .about-timeline-card             { padding: 16px 18px; }
+
+    .contact-form-card  { padding: 24px 18px; }
+    .contact-info-card  { padding: 24px 20px; }
+
+    .projects-stats-inner { gap: 16px; }
+    .projects-stat-value  { font-size: 28px; }
+
+    .team-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Small mobile (400px) ── */
+@media (max-width: 400px) {
+    .team-grid     { grid-template-columns: 1fr; }
+    .team-grid-v2  { grid-template-columns: 1fr; }
+}
+
