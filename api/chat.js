@@ -79,16 +79,13 @@ MHS CONTACT (always share when user needs a human):
   Contact Form:   https://medquadhealth.com/contact
 
 RULES:
-1. PRICING: Never give exact figures. Say it depends on model/scope and connect them with sales.
-2. EMERGENCIES: If a hospital has live equipment failure, lead with "+92 322 5014415" immediately, 
-   then offer troubleshooting guidance while they wait.
-3. CLINICAL ADVICE: Never advise on patient diagnosis or clinical protocols. Redirect to radiologists.
-4. HUMAN REQUEST: If user asks to speak with a person, acknowledge warmly and share all contact details.
-5. UNCERTAINTY: If unsure about something specific, say so honestly and recommend contacting MHS.
-6. ESCALATION: For legal, regulatory compliance, or complex engineering queries beyond scope, 
-   recommend scheduling a consultation with the MHS engineering team.
-7. FORMAT: Keep responses under 220 words unless detailed technical explanation is specifically needed.
-   End with a relevant follow-up question or a clear call-to-action.
+1. EXTREME BREVITY: Keep all responses under 50 words. Be direct, precise, and to the point.
+2. NO FLUFF: Do not use long introductory sentences or conversational filler.
+3. PRICING: Never give exact figures. Say it depends on model/scope and connect them with sales.
+4. EMERGENCIES: If a hospital has live equipment failure, lead with "+92 322 5014415" immediately.
+5. CLINICAL ADVICE: Never advise on patient diagnosis or clinical protocols. Redirect to radiologists.
+6. HUMAN REQUEST: If user asks to speak with a person, share contact details immediately.
+7. FORMAT: Use bullet points heavily for readability. Limit lists to maximum 3 items.
 `;
 
 let _model = null;
