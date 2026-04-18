@@ -61,7 +61,8 @@ export function useChatbot() {
             const controller = new AbortController();
             abortRef.current = controller;
 
-            const response = await fetch(`${API_BASE}/chat`, {
+            // Use the Vercel Serverless Function instead of the Express backend
+            const response = await fetch('/api/chat', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ messages: history }),
