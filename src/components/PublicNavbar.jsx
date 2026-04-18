@@ -39,12 +39,16 @@ export default function PublicNavbar() {
         return () => { document.body.style.overflow = ''; };
     }, [mobileOpen]);
 
-    // Close on route change
+    // Close on route change — immediately, no animation needed
     useEffect(() => {
-        triggerClose();
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        setMobileOpen(false);
+        setClosing(false);
     }, [location.pathname]);
 
     const triggerClose = () => {
+        // Bail out early if already closed — avoids rendering the mobile menu on desktop
+        if (!mobileOpen && !closing) return;
         if (closeTimer.current) clearTimeout(closeTimer.current);
         setClosing(true);
         closeTimer.current = setTimeout(() => {
