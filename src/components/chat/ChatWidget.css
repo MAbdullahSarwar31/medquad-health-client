@@ -235,6 +235,13 @@
     word-break: break-word;
 }
 
+.cw-bullet-line {
+    display: block;
+    padding-left: 12px;
+    text-indent: -10px;
+    margin-top: 5px;
+}
+
 /* Support bubble — white card, no harsh left border */
 .cw-bubble--support {
     background: white;

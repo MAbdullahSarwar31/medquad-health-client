@@ -37,10 +37,30 @@ function TeamAvatar({ size = 30 }) {
 function MessageBubble({ msg }) {
     const isUser = msg.role === 'user';
 
-    const renderText = (text) =>
-        text.split('\n').map((line, i, arr) => (
-            <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
-        ));
+    const renderText = (text) => {
+        return text.split('\n').map((line, i, arr) => {
+            let isBullet = false;
+            let formattedLine = line;
+            
+            // Detect bullet points
+            if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
+                isBullet = true;
+                formattedLine = '• ' + line.trim().substring(2);
+            }
+
+            // Parse **bold** text
+            const parts = formattedLine.split(/\*\*(.*?)\*\*/g);
+            
+            return (
+                <span key={i} className={isBullet ? "cw-bullet-line" : ""}>
+                    {parts.map((part, j) => 
+                        j % 2 === 1 ? <strong key={j} style={{fontWeight: 600, color: 'inherit'}}>{part}</strong> : part
+                    )}
+                    {i < arr.length - 1 && !isBullet && <br />}
+                </span>
+            );
+        });
+    };
 
     return (
         <div className={`cw-msg ${isUser ? 'cw-msg--user' : 'cw-msg--support'}`}>
