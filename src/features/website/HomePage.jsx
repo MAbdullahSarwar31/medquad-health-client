@@ -19,10 +19,10 @@ const SERVICES = [
 ];
 
 const STATS = [
-    { value: '500+', label: 'Equipment Units' },
-    { value: '50+',  label: 'Hospitals Served' },
-    { value: '99%',  label: 'Uptime Assured' },
-    { value: '12+',  label: 'Years Experience' },
+    { value: '120+', label: 'Equipment Units' },
+    { value: '25+',  label: 'Hospitals Served' },
+    { value: '98%',  label: 'Uptime Assured' },
+    { value: '8+',   label: 'Years Experience' },
 ];
 
 const BRANDS = ['GE Healthcare', 'Siemens Healthineers', 'Philips Healthcare', 'Canon Medical', 'Hitachi'];

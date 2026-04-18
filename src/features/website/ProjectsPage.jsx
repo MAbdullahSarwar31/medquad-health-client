@@ -65,8 +65,8 @@ const PROJECTS = [
 
 const STATS = [
     { value: '6+', label: 'Major Projects' },
-    { value: '50+', label: 'Hospitals Served' },
-    { value: '500+', label: 'Equipment Units' },
+    { value: '25+', label: 'Hospitals Served' },
+    { value: '120+', label: 'Equipment Units' },
     { value: '4', label: 'Provinces Covered' },
 ];
 

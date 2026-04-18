@@ -93,9 +93,9 @@ export default function LoginPage() {
                     {/* Stats */}
                     <div className="auth-brand-stats">
                         {[
-                            { value: '500+', label: 'Equipment Units' },
-                            { value: '50+', label: 'Hospitals Served' },
-                            { value: '99%', label: 'Uptime Assured' },
+                            { value: '120+', label: 'Equipment Units' },
+                            { value: '25+', label: 'Hospitals Served' },
+                            { value: '98%', label: 'Uptime Assured' },
                         ].map((s) => (
                             <div key={s.label} className="auth-brand-stat">
                                 <span className="auth-brand-stat-value">{s.value}</span>
