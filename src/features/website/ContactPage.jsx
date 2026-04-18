@@ -13,10 +13,41 @@ export default function ContactPage() {
 
     const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
+    const [status, setStatus] = useState('idle');
+
     const handleSubmit = async e => {
         e.preventDefault();
-        // In production this would call an API/email service
-        setSent(true);
+        setStatus('submitting');
+        
+        try {
+            const formData = new FormData();
+            // Fallback key provided just in case, but user should set environment variable
+            formData.append("access_key", import.meta.env.VITE_WEB3FORMS_KEY);
+            formData.append("name", form.name);
+            formData.append("email", form.email);
+            formData.append("phone", form.phone);
+            formData.append("service", form.service);
+            formData.append("message", form.message);
+            formData.append("subject", `New Website Inquiry from ${form.name}`);
+            formData.append("from_name", "MHS Website Portal");
+
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setSent(true);
+            } else {
+                alert("Something went wrong submitting the form. Please try again or use WhatsApp.");
+                setStatus('idle');
+            }
+        } catch (error) {
+            alert("Network error. Please try again or use WhatsApp.");
+            setStatus('idle');
+        }
     };
 
     return (
@@ -83,8 +114,8 @@ export default function ContactPage() {
                                     <textarea className="form-control" name="message" value={form.message} onChange={handleChange}
                                         rows={5} placeholder="Describe your requirement — equipment type, make/model, issue, or any other details..." required />
                                 </div>
-                                <button type="submit" className="pub-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                                    Send Message →
+                                <button type="submit" disabled={status === 'submitting'} className="pub-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                                    {status === 'submitting' ? 'Sending Message...' : 'Send Message →'}
                                 </button>
                             </form>
                         )}
