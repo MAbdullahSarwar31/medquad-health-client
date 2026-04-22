@@ -68,7 +68,37 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ScrollToTop />
-        <Toaster position="top-right" />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: '13px',
+              fontWeight: 500,
+              borderRadius: '10px',
+              boxShadow: '0 8px 24px rgba(13,27,62,0.12), 0 2px 8px rgba(13,27,62,0.06)',
+              padding: '12px 16px',
+              maxWidth: 380,
+            },
+            success: {
+              iconTheme: { primary: '#22C55E', secondary: '#fff' },
+              style: {
+                background: '#F0FDF4',
+                color: '#166534',
+                border: '1px solid #BBF7D0',
+              },
+            },
+            error: {
+              iconTheme: { primary: '#E8192C', secondary: '#fff' },
+              style: {
+                background: '#FEF2F2',
+                color: '#991B1B',
+                border: '1px solid #FECACA',
+              },
+            },
+          }}
+        />
         <Routes>
           {/* ══════════════ PUBLIC WEBSITE ══════════════ */}
           <Route path="/" element={<PubPage><HomePage /></PubPage>} />

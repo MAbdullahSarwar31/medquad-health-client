@@ -70,25 +70,63 @@ const AdminDashboard = () => {
 
     if (loading) {
         return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-                <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#3B82F6] animate-spin"></div>
-                <p className="text-sm font-medium text-slate-500">Loading dashboard...</p>
+            <div>
+                {/* Skeleton page header */}
+                <div style={{ marginBottom: 28 }}>
+                    <div className="skeleton skeleton-title" style={{ width: 220, marginBottom: 8 }} />
+                    <div className="skeleton skeleton-text-sm" style={{ width: 160 }} />
+                </div>
+                {/* Skeleton KPI grid */}
+                <div className="kpi-grid">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="skeleton-card">
+                            <div className="skeleton-stat-card">
+                                <div className="skeleton skeleton-icon" />
+                                <div className="skeleton-stat-info">
+                                    <div className="skeleton skeleton-title" style={{ width: '50%' }} />
+                                    <div className="skeleton skeleton-text" style={{ width: '70%' }} />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                {/* Skeleton charts row */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+                    <div className="skeleton-card"><div className="skeleton skeleton-rect" style={{ height: 280 }} /></div>
+                    <div className="skeleton-card"><div className="skeleton skeleton-rect" style={{ height: 280 }} /></div>
+                </div>
+                {/* Skeleton table */}
+                <div className="card">
+                    <div className="card-header">
+                        <div className="skeleton skeleton-text" style={{ width: 200 }} />
+                    </div>
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="skeleton-table-row">
+                            <div className="skeleton skeleton-text" style={{ width: 80 }} />
+                            <div className="skeleton skeleton-text" style={{ flex: 1 }} />
+                            <div className="skeleton skeleton-text" style={{ width: 60 }} />
+                            <div className="skeleton skeleton-text" style={{ width: 70 }} />
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-1">Dashboard Overview</h1>
-                    <p className="text-slate-500 text-sm font-medium">Welcome back, {user?.name}.</p>
+        <div>
+            {/* Page Header */}
+            <div className="page-header">
+                <div className="page-header-row">
+                    <div>
+                        <h1 className="page-header-title">Dashboard <span>Overview</span></h1>
+                        <p className="page-header-sub">Welcome back, {user?.name}. Here's what's happening today.</p>
+                    </div>
                 </div>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* KPI Cards — staggered entrance via .kpi-grid */}
+            <div className="kpi-grid">
                 {/* Tickets */}
                 <div className="bg-white rounded-lg p-6 shadow-sm border-l-4 border-blue-500">
                     <div className="flex items-center gap-4">
@@ -159,7 +197,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
                 {/* Trend Chart */}
                 <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 flex flex-col">
                     <h2 className="text-base font-bold text-slate-800 mb-6">Ticket Volume (7 Days)</h2>
@@ -202,15 +240,15 @@ const AdminDashboard = () => {
             </div>
 
             {/* Recent Tickets Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                <div className="flex items-center justify-between p-5 border-b border-slate-200">
+            <div className="card" style={{ overflow: 'hidden' }}>
+                <div className="card-header">
                     <div>
-                        <h2 className="text-base font-bold text-slate-800">Recent Service Tickets</h2>
-                        <p className="text-xs text-slate-500 font-medium mt-0.5">Most recent maintenance requests</p>
+                        <h2 className="card-title">Recent Service Tickets</h2>
+                        <p className="page-header-sub" style={{ marginTop: 2 }}>Most recent maintenance requests</p>
                     </div>
                     <button
                         onClick={() => navigate('/admin/tickets')}
-                        className="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1"
+                        className="btn btn-ghost btn-sm"
                     >
                         View All →
                     </button>

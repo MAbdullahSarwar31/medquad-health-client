@@ -3,225 +3,290 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ticketsAPI } from '../../services/api';
 import {
-    HiOutlineTicket, HiOutlineRefresh, HiOutlineClock,
-    HiOutlineCheckCircle, HiOutlineExclamationCircle,
-    HiOutlineOfficeBuilding, HiOutlineArrowRight
-} from 'react-icons/hi';
+    MdConfirmationNumber, MdWarning, MdSchedule,
+    MdCheckCircle, MdInventory, MdAttachMoney,
+    MdArrowForward, MdBusiness
+} from 'react-icons/md';
 
-const PriorityBadge = ({ priority }) => {
-    const map = {
-        critical: 'bg-red-100 text-red-700',
-        high: 'bg-amber-100 text-amber-700',
-        medium: 'bg-blue-100 text-blue-700',
-        low: 'bg-slate-100 text-slate-600',
-    };
-    return <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${map[priority] || map.low}`}>{priority || 'N/A'}</span>;
+/* ── Shared badge helpers (design system aligned) ── */
+const PRIORITY_MAP = {
+    critical: 'badge badge-critical',
+    high:     'badge badge-high',
+    medium:   'badge badge-info',
+    low:      'badge badge-gray',
 };
 
+const STATUS_COLORS = {
+    open:          '#EF4444',
+    assigned:      '#F59E0B',
+    'in-progress': '#3B82F6',
+    'on-hold':     '#6B7280',
+    resolved:      '#22C55E',
+    closed:        '#94A3B8',
+};
+
+const PriorityBadge = ({ priority }) => (
+    <span className={PRIORITY_MAP[priority] || PRIORITY_MAP.low}>
+        {priority || 'N/A'}
+    </span>
+);
+
 const StatusBadge = ({ status }) => {
-    const dot = status === 'open' ? 'bg-red-500' : status === 'in-progress' ? 'bg-blue-500' : status === 'resolved' ? 'bg-emerald-500' : 'bg-slate-400';
-    const label = status?.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const color = STATUS_COLORS[status] || STATUS_COLORS.closed;
+    const label = status?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Unknown';
     return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold uppercase border bg-slate-50 border-slate-200 text-slate-600">
-            <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+        <span className="badge" style={{
+            background: color + '18',
+            color: color,
+            border: `1px solid ${color}30`,
+        }}>
+            <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: color, display: 'inline-block', flexShrink: 0
+            }} />
             {label}
         </span>
     );
 };
 
+/* ── Dashboard skeleton ── */
+function DashboardSkeleton() {
+    return (
+        <div>
+            <div style={{ marginBottom: 28 }}>
+                <div className="skeleton skeleton-title" style={{ width: 200, marginBottom: 8 }} />
+                <div className="skeleton skeleton-text-sm" style={{ width: 260 }} />
+            </div>
+            <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="skeleton-card">
+                        <div className="skeleton-stat-card">
+                            <div className="skeleton skeleton-icon" />
+                            <div className="skeleton-stat-info">
+                                <div className="skeleton skeleton-title" style={{ width: '50%' }} />
+                                <div className="skeleton skeleton-text" style={{ width: '70%' }} />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+                <div className="card">
+                    <div className="card-header"><div className="skeleton skeleton-text" style={{ width: 160 }} /></div>
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="skeleton-table-row">
+                            <div className="skeleton skeleton-text" style={{ width: 70 }} />
+                            <div className="skeleton skeleton-text" style={{ flex: 1 }} />
+                            <div className="skeleton skeleton-text" style={{ width: 60 }} />
+                        </div>
+                    ))}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div className="skeleton-card"><div className="skeleton skeleton-rect" style={{ height: 160 }} /></div>
+                    <div className="skeleton-card"><div className="skeleton skeleton-rect" style={{ height: 120 }} /></div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const EmployeeDashboard = () => {
-    const { user } = useAuth();
-    const navigate = useNavigate();
+    const { user }    = useAuth();
+    const navigate    = useNavigate();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchTickets = async () => {
-        setLoading(true);
-        try {
-            const res = await ticketsAPI.getAll({ limit: 100 });
-            setTickets(res.data?.data?.tickets || []);
-        } catch (err) {
-            console.error('Failed to fetch tickets:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchTickets(); }, []);
+    useEffect(() => {
+        ticketsAPI.getAll({ limit: 100 })
+            .then(res => setTickets(res.data?.data?.tickets || []))
+            .catch(err => console.error('Failed to fetch tickets:', err))
+            .finally(() => setLoading(false));
+    }, []);
 
     const totalTickets = tickets.length;
-    const openTickets = tickets.filter(t => t.status === 'open').length;
-    const inProgress = tickets.filter(t => t.status === 'in-progress').length;
-    const resolved = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
-
-    const critical = tickets.filter(t => t.priority === 'critical').length;
-    const high = tickets.filter(t => t.priority === 'high').length;
-    const medium = tickets.filter(t => t.priority === 'medium').length;
-    const low = tickets.filter(t => t.priority === 'low').length;
-
+    const openTickets  = tickets.filter(t => t.status === 'open').length;
+    const inProgress   = tickets.filter(t => t.status === 'in-progress').length;
+    const resolved     = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
+    const critical     = tickets.filter(t => t.priority === 'critical').length;
+    const high         = tickets.filter(t => t.priority === 'high').length;
+    const medium       = tickets.filter(t => t.priority === 'medium').length;
+    const low          = tickets.filter(t => t.priority === 'low').length;
     const recentTickets = [...tickets]
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 6);
 
-    if (loading) {
-        return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-                <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
-                <p className="text-sm font-medium text-slate-500">Loading your dashboard...</p>
-            </div>
-        );
-    }
+    const resolvedPct = totalTickets > 0 ? Math.round((resolved / totalTickets) * 100) : 0;
+
+    if (loading) return <DashboardSkeleton />;
+
+    const kpiCards = [
+        {
+            icon: <MdConfirmationNumber />,
+            iconClass: 'stat-icon-blue',
+            value: totalTickets,
+            label: 'Total Assigned',
+            sub: 'All time',
+        },
+        {
+            icon: <MdWarning />,
+            iconClass: 'stat-icon-red',
+            value: openTickets,
+            label: 'Open',
+            sub: `${inProgress} in progress`,
+        },
+        {
+            icon: <MdSchedule />,
+            iconClass: 'stat-icon-warn',
+            value: inProgress,
+            label: 'In Progress',
+            sub: 'Active work',
+        },
+        {
+            icon: <MdCheckCircle />,
+            iconClass: 'stat-icon-green',
+            value: resolved,
+            label: 'Resolved',
+            sub: `${resolvedPct}% resolution rate`,
+        },
+    ];
+
+    const priorityRows = [
+        { label: 'Critical', count: critical, color: '#EF4444' },
+        { label: 'High',     count: high,     color: '#F59E0B' },
+        { label: 'Medium',   count: medium,   color: '#3B82F6' },
+        { label: 'Low',      count: low,       color: '#94A3B8' },
+    ];
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800 mb-1">My Dashboard</h1>
-                    <p className="text-slate-500 text-sm">Welcome, <strong>{user?.name}</strong>. {totalTickets} ticket{totalTickets !== 1 ? 's' : ''} assigned to you.</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => navigate('/employee/tickets')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#E63946] text-white rounded-xl font-semibold shadow-sm hover:bg-red-700 transition-all active:scale-95"
-                    >
-                        <HiOutlineTicket className="text-lg" /> My Tickets
-                    </button>
-                </div>
-            </div>
-
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-blue-500">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                            <HiOutlineTicket className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-slate-800">{totalTickets}</div>
-                            <div className="text-xs font-semibold text-slate-500">Total Assigned</div>
-                        </div>
+        <div>
+            {/* Page Header */}
+            <div className="page-header">
+                <div className="page-header-row">
+                    <div>
+                        <h1 className="page-header-title">My <span>Dashboard</span></h1>
+                        <p className="page-header-sub">
+                            Welcome, <strong>{user?.name}</strong>.{' '}
+                            {totalTickets} ticket{totalTickets !== 1 ? 's' : ''} assigned to you.
+                        </p>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">All time</div>
-                </div>
-
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-red-500">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                            <HiOutlineExclamationCircle className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-slate-800">{openTickets}</div>
-                            <div className="text-xs font-semibold text-slate-500">Open</div>
-                        </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">{inProgress} in progress</div>
-                </div>
-
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-amber-500">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                            <HiOutlineClock className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-slate-800">{inProgress}</div>
-                            <div className="text-xs font-semibold text-slate-500">In Progress</div>
-                        </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">Active work</div>
-                </div>
-
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-emerald-500">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                            <HiOutlineCheckCircle className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-slate-800">{resolved}</div>
-                            <div className="text-xs font-semibold text-slate-500">Resolved</div>
-                        </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">
-                        {totalTickets > 0 ? Math.round((resolved / totalTickets) * 100) : 0}% rate
+                    <div className="page-header-actions">
+                        <button
+                            onClick={() => navigate('/employee/tickets')}
+                            className="btn btn-primary"
+                        >
+                            <MdConfirmationNumber />
+                            My Tickets
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* Two column layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* KPI Cards — staggered via .kpi-grid */}
+            <div className="kpi-grid">
+                {kpiCards.map((card, i) => (
+                    <div key={i} className="stat-card">
+                        <div className={`stat-icon ${card.iconClass}`}>{card.icon}</div>
+                        <div className="stat-info">
+                            <div className="stat-value">{card.value}</div>
+                            <div className="stat-label">{card.label}</div>
+                            <div className="stat-change" style={{ color: 'var(--gray-500)', fontWeight: 400 }}>
+                                {card.sub}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
 
-                {/* Recent Tickets — 2/3 width */}
-                <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="flex items-center justify-between p-5 border-b border-slate-200">
+            {/* Main content grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+
+                {/* Recent Tickets card */}
+                <div className="card">
+                    <div className="card-header">
                         <div>
-                            <h2 className="text-base font-bold text-slate-800">Recent Tickets</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">Latest {recentTickets.length} of {totalTickets}</p>
+                            <h2 className="card-title">Recent Tickets</h2>
+                            <p className="page-header-sub" style={{ marginTop: 2 }}>
+                                Latest {recentTickets.length} of {totalTickets}
+                            </p>
                         </div>
                         <button
                             onClick={() => navigate('/employee/tickets')}
-                            className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                            className="btn btn-ghost btn-sm"
                         >
-                            View All <HiOutlineArrowRight />
+                            View All <MdArrowForward />
                         </button>
                     </div>
-                    <div className="divide-y divide-slate-100">
-                        {recentTickets.length === 0 ? (
-                            <div className="py-10 text-center text-slate-400 text-sm">
-                                <HiOutlineTicket className="text-4xl mx-auto mb-2" />
-                                <p>No tickets assigned yet.</p>
-                            </div>
-                        ) : (
-                            recentTickets.map(ticket => (
-                                <div key={ticket._id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                                            <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+
+                    {recentTickets.length === 0 ? (
+                        <div className="empty-state">
+                            <div className="empty-state-icon"><MdConfirmationNumber /></div>
+                            <h3 className="empty-state-title">No tickets assigned</h3>
+                            <p className="empty-state-desc">
+                                You have no tickets assigned yet. Check back later.
+                            </p>
+                        </div>
+                    ) : (
+                        <div>
+                            {recentTickets.map(ticket => (
+                                <div
+                                    key={ticket._id}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: 14,
+                                        padding: '12px 20px', borderBottom: '1px solid var(--gray-100)',
+                                        transition: 'background 150ms ease', cursor: 'default',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--gray-50)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' }}>
+                                            <span style={{
+                                                fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+                                                background: 'var(--gray-100)', color: 'var(--gray-600)',
+                                                padding: '2px 7px', borderRadius: 4,
+                                            }}>
                                                 #{ticket.ticketNumber || ticket._id.slice(-6).toUpperCase()}
                                             </span>
                                             <PriorityBadge priority={ticket.priority} />
                                         </div>
-                                        <p className="text-sm font-semibold text-slate-800 truncate">
+                                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {ticket.equipmentId?.name || 'Unknown Equipment'}
                                         </p>
-                                        <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                                            <HiOutlineOfficeBuilding className="shrink-0" />
+                                        <p style={{ fontSize: 11, color: 'var(--gray-500)', margin: '2px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                            <MdBusiness style={{ flexShrink: 0 }} />
                                             {ticket.clientId?.orgName || 'N/A'} · {new Date(ticket.createdAt).toLocaleDateString()}
                                         </p>
                                     </div>
                                     <StatusBadge status={ticket.status} />
                                 </div>
-                            ))
-                        )}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Right column */}
-                <div className="space-y-6">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-                    {/* Priority Breakdown */}
-                    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                        <h2 className="text-base font-bold text-slate-800 mb-4">Priority Breakdown</h2>
+                    {/* Priority breakdown */}
+                    <div className="card card-body" style={{ padding: 20 }}>
+                        <h2 className="card-title" style={{ marginBottom: 16 }}>Priority Breakdown</h2>
                         {totalTickets === 0 ? (
-                            <p className="text-sm text-slate-400 text-center py-4">No tickets yet</p>
+                            <p style={{ fontSize: 13, color: 'var(--gray-400)', textAlign: 'center', padding: '16px 0' }}>No tickets yet</p>
                         ) : (
-                            <div className="space-y-3">
-                                {[
-                                    { label: 'Critical', count: critical, bar: 'bg-red-500', text: 'text-red-600' },
-                                    { label: 'High', count: high, bar: 'bg-amber-500', text: 'text-amber-600' },
-                                    { label: 'Medium', count: medium, bar: 'bg-blue-500', text: 'text-blue-600' },
-                                    { label: 'Low', count: low, bar: 'bg-slate-400', text: 'text-slate-500' },
-                                ].map(row => (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                {priorityRows.map(row => (
                                     <div key={row.label}>
-                                        <div className="flex justify-between text-xs mb-1">
-                                            <span className={`font-semibold ${row.text}`}>{row.label}</span>
-                                            <span className="font-bold text-slate-700">{row.count}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 12 }}>
+                                            <span style={{ fontWeight: 600, color: row.color }}>{row.label}</span>
+                                            <span style={{ fontWeight: 700, color: 'var(--gray-700)' }}>{row.count}</span>
                                         </div>
-                                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                            <div
-                                                className={`h-full rounded-full transition-all ${row.bar}`}
-                                                style={{ width: `${totalTickets > 0 ? (row.count / totalTickets) * 100 : 0}%` }}
-                                            />
+                                        <div style={{ height: 6, background: 'var(--gray-100)', borderRadius: 4, overflow: 'hidden' }}>
+                                            <div style={{
+                                                height: '100%', borderRadius: 4,
+                                                background: row.color,
+                                                width: `${totalTickets > 0 ? (row.count / totalTickets) * 100 : 0}%`,
+                                                transition: 'width 600ms cubic-bezier(0.4,0,0.2,1)',
+                                            }} />
                                         </div>
                                     </div>
                                 ))}
@@ -229,34 +294,53 @@ const EmployeeDashboard = () => {
                         )}
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                        <h2 className="text-base font-bold text-slate-800 mb-3">Quick Actions</h2>
-                        <div className="space-y-2">
-                            <button
-                                onClick={() => navigate('/employee/tickets')}
-                                className="w-full flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors text-left"
-                            >
-                                <div className="w-8 h-8 bg-blue-600 text-white rounded flex items-center justify-center shrink-0">
-                                    <HiOutlineTicket className="text-sm" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-800">My Tickets</p>
-                                    <p className="text-xs text-slate-500">View and update all tickets</p>
-                                </div>
-                            </button>
-                            <button
-                                onClick={() => navigate('/employee/inventory')}
-                                className="w-full flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors text-left"
-                            >
-                                <div className="w-8 h-8 bg-slate-600 text-white rounded flex items-center justify-center shrink-0">
-                                    <HiOutlineClock className="text-sm" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-800">Inventory</p>
-                                    <p className="text-xs text-slate-500">View parts and supplies</p>
-                                </div>
-                            </button>
+                    {/* Quick actions */}
+                    <div className="card card-body" style={{ padding: 20 }}>
+                        <h2 className="card-title" style={{ marginBottom: 12 }}>Quick Actions</h2>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {[
+                                { icon: <MdConfirmationNumber />, label: 'My Tickets', sub: 'View and update all tickets', path: '/employee/tickets', color: 'var(--brand-blue)' },
+                                { icon: <MdInventory />,          label: 'Inventory',   sub: 'View parts and supplies',    path: '/employee/inventory', color: 'var(--gray-700)' },
+                                { icon: <MdAttachMoney />,        label: 'My Expenses', sub: 'Submit expense claims',       path: '/employee/expenses',  color: '#16A34A' },
+                            ].map(action => (
+                                <button
+                                    key={action.path}
+                                    onClick={() => navigate(action.path)}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: 12,
+                                        padding: '10px 12px',
+                                        border: '1px solid var(--gray-200)',
+                                        borderRadius: 10, background: 'none',
+                                        cursor: 'pointer', textAlign: 'left',
+                                        fontFamily: 'var(--font-family)',
+                                        transition: 'background 150ms ease, border-color 150ms ease, transform 150ms ease',
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.background = 'var(--gray-50)';
+                                        e.currentTarget.style.transform = 'translateX(3px)';
+                                        e.currentTarget.style.borderColor = 'var(--gray-300)';
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.background = 'none';
+                                        e.currentTarget.style.transform = 'translateX(0)';
+                                        e.currentTarget.style.borderColor = 'var(--gray-200)';
+                                    }}
+                                >
+                                    <div style={{
+                                        width: 34, height: 34, background: action.color,
+                                        color: 'white', borderRadius: 8,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: 16, flexShrink: 0,
+                                    }}>
+                                        {action.icon}
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', margin: 0 }}>{action.label}</p>
+                                        <p style={{ fontSize: 11, color: 'var(--gray-500)', margin: 0 }}>{action.sub}</p>
+                                    </div>
+                                    <MdArrowForward style={{ marginLeft: 'auto', color: 'var(--gray-400)', fontSize: 16 }} />
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>

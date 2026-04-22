@@ -4,6 +4,25 @@ import { useAuth } from '../../context/AuthContext';
 import { MdVisibility, MdVisibilityOff, MdEmail, MdLock, MdPerson, MdPhone } from 'react-icons/md';
 import './Auth.css';
 
+/* ── Password strength calculator ── */
+function getPasswordStrength(password) {
+    if (!password) return null;
+    let score = 0;
+    if (password.length >= 8)  score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    if (score <= 1) return { level: 'weak',   label: 'Weak — add uppercase, numbers & symbols' };
+    if (score === 2) return { level: 'weak',   label: 'Weak — add more complexity' };
+    if (score === 3) return { level: 'medium', label: 'Medium — add a symbol for stronger security' };
+    return              { level: 'strong',  label: 'Strong password ✓' };
+}
+
+function isValidEmail(val) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+}
+
 export default function RegisterPage() {
     const { register, loading, error, clearError, isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
@@ -15,30 +34,73 @@ export default function RegisterPage() {
         password: '',
         confirmPassword: '',
     });
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
-    const [formErrors, setFormErrors] = useState({});
+    const [showPassword, setShowPassword]   = useState(false);
+    const [showConfirm, setShowConfirm]     = useState(false);
+    const [fieldErrors, setFieldErrors]     = useState({});
+    const [submitted, setSubmitted]         = useState(false);
+
+    const strength = getPasswordStrength(formData.password);
+
+    /* Confirm password match state */
+    const confirmMatch =
+        formData.confirmPassword.length > 0 &&
+        formData.password === formData.confirmPassword;
+    const confirmMismatch =
+        formData.confirmPassword.length > 0 &&
+        formData.password !== formData.confirmPassword;
 
     useEffect(() => {
         if (isAuthenticated && user) {
-            if (user.role === 'admin') navigate('/admin', { replace: true });
+            if (user.role === 'admin')         navigate('/admin',    { replace: true });
             else if (user.role === 'employee') navigate('/employee', { replace: true });
-            else if (user.role === 'client') navigate('/client', { replace: true });
+            else if (user.role === 'client')   navigate('/client',   { replace: true });
         }
     }, [isAuthenticated, user, navigate]);
 
+    useEffect(() => { return () => { if (error) clearError(); }; }, []);
+
     const handleChange = (e) => {
-        setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
-        setFormErrors((p) => ({ ...p, [e.target.name]: '' }));
+        const { name, value } = e.target;
+        setFormData(p => ({ ...p, [name]: value }));
+        if (fieldErrors[name]) setFieldErrors(p => ({ ...p, [name]: '' }));
         if (error) clearError();
+    };
+
+    /* Inline validation on blur */
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        const errs = { ...fieldErrors };
+
+        if (name === 'name' && !value.trim()) {
+            errs.name = 'Full name is required.';
+        }
+        if (name === 'email') {
+            if (!value.trim()) errs.email = 'Email is required.';
+            else if (!isValidEmail(value)) errs.email = 'Please enter a valid email address.';
+            else delete errs.email;
+        }
+        if (name === 'password') {
+            if (!value) errs.password = 'Password is required.';
+            else if (value.length < 8) errs.password = 'Password must be at least 8 characters.';
+            else delete errs.password;
+        }
+        if (name === 'confirmPassword') {
+            if (value && value !== formData.password) {
+                errs.confirmPassword = 'Passwords do not match.';
+            } else {
+                delete errs.confirmPassword;
+            }
+        }
+        setFieldErrors(errs);
     };
 
     const validate = () => {
         const errs = {};
-        if (!formData.name.trim()) errs.name = 'Full name is required.';
-        if (!formData.email.trim()) errs.email = 'Email is required.';
-        if (!formData.password) errs.password = 'Password is required.';
-        else if (formData.password.length < 8) errs.password = 'Password must be at least 8 characters.';
+        if (!formData.name.trim())              errs.name    = 'Full name is required.';
+        if (!formData.email.trim())             errs.email   = 'Email is required.';
+        else if (!isValidEmail(formData.email)) errs.email   = 'Please enter a valid email address.';
+        if (!formData.password)                 errs.password = 'Password is required.';
+        else if (formData.password.length < 8)  errs.password = 'Password must be at least 8 characters.';
         if (formData.password !== formData.confirmPassword)
             errs.confirmPassword = 'Passwords do not match.';
         return errs;
@@ -47,16 +109,60 @@ export default function RegisterPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const errs = validate();
-        if (Object.keys(errs).length > 0) { setFormErrors(errs); return; }
+        if (Object.keys(errs).length > 0) {
+            setFieldErrors(errs);
+            return;
+        }
         const { confirmPassword, ...payload } = formData;
-        await register(payload);
+        const result = await register(payload);
+        if (result && !error) {
+            setSubmitted(true);
+        }
     };
+
+    /* ── Success state ── */
+    if (submitted && !error) {
+        return (
+            <div className="auth-page">
+                <div className="auth-brand-panel">
+                    <div className="auth-ring auth-ring-1" />
+                    <div className="auth-ring auth-ring-2" />
+                    <div className="auth-brand-content">
+                        <div className="auth-brand-logo">
+                            <div className="auth-logo-card">
+                                <img src="/logo.png" alt="Medquad Health Solutions" className="auth-logo-img" />
+                            </div>
+                        </div>
+                        <h1 className="auth-brand-title">
+                            Join the<br />Medquad <span>Platform</span>
+                        </h1>
+                    </div>
+                </div>
+                <div className="auth-form-panel">
+                    <div className="auth-form-card" style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: 52, marginBottom: 16 }}>✅</div>
+                        <h2 className="auth-form-title" style={{ textAlign: 'center' }}>Request Submitted!</h2>
+                        <p className="auth-form-sub" style={{ textAlign: 'center', marginBottom: 28 }}>
+                            Your account request has been received. An administrator will review and activate
+                            your account shortly. You will be notified via email.
+                        </p>
+                        <Link
+                            to="/login"
+                            className="auth-submit-btn"
+                            style={{ display: 'flex', textDecoration: 'none', justifyContent: 'center' }}
+                        >
+                            Back to Sign In
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-page">
-            {/* Left brand panel */}
+            {/* ── LEFT BRAND PANEL ── */}
             <div className="auth-brand-panel">
-                {/* Decorative rings for depth */}
                 <div className="auth-ring auth-ring-1" />
                 <div className="auth-ring auth-ring-2" />
 
@@ -91,7 +197,7 @@ export default function RegisterPage() {
                 </div>
             </div>
 
-            {/* Right form panel */}
+            {/* ── RIGHT FORM PANEL ── */}
             <div className="auth-form-panel">
                 <div className="auth-form-card">
                     <div className="auth-form-header">
@@ -100,118 +206,237 @@ export default function RegisterPage() {
                     </div>
 
                     {error && (
-                        <div className="alert alert-error" style={{ marginBottom: 20 }}>
-                            <span>⚠</span>
+                        <div className="auth-alert auth-alert--error" role="alert">
+                            <span className="auth-alert-icon">⚠️</span>
                             <span>{error}</span>
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="auth-form" noValidate>
-                        {/* Name */}
+
+                        {/* ── Full Name ── */}
                         <div className="form-group">
-                            <label className="form-label" htmlFor="name">Full Name</label>
+                            <label className="form-label" htmlFor="reg-name">Full Name</label>
                             <div className="auth-field-wrapper">
-                                <MdPerson className="auth-field-icon" />
+                                <span className="auth-field-icon-wrap" aria-hidden="true">
+                                    <MdPerson />
+                                </span>
                                 <input
-                                    id="name" name="name" type="text"
-                                    className={`form-control auth-field-input ${formErrors.name ? 'form-control-error' : ''}`}
+                                    id="reg-name"
+                                    name="name"
+                                    type="text"
+                                    className={`auth-field-input ${
+                                        fieldErrors.name
+                                            ? 'auth-field-input--error'
+                                            : formData.name.trim().length > 1
+                                            ? 'auth-field-input--success'
+                                            : ''
+                                    }`}
                                     placeholder="Dr. Ahmed Khan"
                                     value={formData.name}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     autoComplete="name"
+                                    aria-describedby={fieldErrors.name ? 'name-error' : undefined}
+                                    aria-invalid={!!fieldErrors.name}
                                 />
                             </div>
-                            {formErrors.name && <p className="form-error-msg">{formErrors.name}</p>}
+                            {fieldErrors.name && (
+                                <p className="auth-field-error" id="name-error" role="alert">
+                                    <span aria-hidden="true">⚠</span> {fieldErrors.name}
+                                </p>
+                            )}
                         </div>
 
-                        {/* Email & Phone */}
+                        {/* ── Email & Phone ── */}
                         <div className="auth-name-grid">
                             <div className="form-group">
-                                <label className="form-label" htmlFor="email">Email</label>
+                                <label className="form-label" htmlFor="reg-email">Email</label>
                                 <div className="auth-field-wrapper">
-                                    <MdEmail className="auth-field-icon" />
+                                    <span className="auth-field-icon-wrap" aria-hidden="true">
+                                        <MdEmail />
+                                    </span>
                                     <input
-                                        id="email" name="email" type="email"
-                                        className={`form-control auth-field-input ${formErrors.email ? 'form-control-error' : ''}`}
+                                        id="reg-email"
+                                        name="email"
+                                        type="email"
+                                        className={`auth-field-input ${
+                                            fieldErrors.email
+                                                ? 'auth-field-input--error'
+                                                : formData.email && isValidEmail(formData.email)
+                                                ? 'auth-field-input--success'
+                                                : ''
+                                        }`}
                                         placeholder="you@hospital.com"
                                         value={formData.email}
                                         onChange={handleChange}
+                                        onBlur={handleBlur}
                                         autoComplete="email"
+                                        inputMode="email"
+                                        aria-describedby={fieldErrors.email ? 'email-reg-error' : undefined}
+                                        aria-invalid={!!fieldErrors.email}
                                     />
                                 </div>
-                                {formErrors.email && <p className="form-error-msg">{formErrors.email}</p>}
+                                {fieldErrors.email && (
+                                    <p className="auth-field-error" id="email-reg-error" role="alert">
+                                        <span aria-hidden="true">⚠</span> {fieldErrors.email}
+                                    </p>
+                                )}
                             </div>
+
                             <div className="form-group">
-                                <label className="form-label" htmlFor="phone">Phone (optional)</label>
+                                <label className="form-label" htmlFor="reg-phone">
+                                    Phone <span style={{ fontWeight: 400, color: 'var(--gray-500)' }}>(optional)</span>
+                                </label>
                                 <div className="auth-field-wrapper">
-                                    <MdPhone className="auth-field-icon" />
+                                    <span className="auth-field-icon-wrap" aria-hidden="true">
+                                        <MdPhone />
+                                    </span>
                                     <input
-                                        id="phone" name="phone" type="tel"
-                                        className="form-control auth-field-input"
+                                        id="reg-phone"
+                                        name="phone"
+                                        type="tel"
+                                        className="auth-field-input"
                                         placeholder="+92 300 0000000"
                                         value={formData.phone}
                                         onChange={handleChange}
                                         autoComplete="tel"
+                                        inputMode="tel"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Password */}
+                        {/* ── Password ── */}
                         <div className="form-group">
-                            <label className="form-label" htmlFor="password">Password</label>
+                            <label className="form-label" htmlFor="reg-password">Password</label>
                             <div className="auth-field-wrapper">
-                                <MdLock className="auth-field-icon" />
+                                <span className="auth-field-icon-wrap" aria-hidden="true">
+                                    <MdLock />
+                                </span>
                                 <input
-                                    id="password" name="password"
+                                    id="reg-password"
+                                    name="password"
                                     type={showPassword ? 'text' : 'password'}
-                                    className={`form-control auth-field-input auth-field-input--pr ${formErrors.password ? 'form-control-error' : ''}`}
-                                    placeholder="Minimum 8 characters"
+                                    className={`auth-field-input auth-field-input--pr ${
+                                        fieldErrors.password
+                                            ? 'auth-field-input--error'
+                                            : strength?.level === 'strong'
+                                            ? 'auth-field-input--success'
+                                            : ''
+                                    }`}
+                                    placeholder="Min. 8 characters"
                                     value={formData.password}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     autoComplete="new-password"
+                                    aria-describedby={fieldErrors.password ? 'password-reg-error' : 'password-strength'}
+                                    aria-invalid={!!fieldErrors.password}
                                 />
-                                <button type="button" className="auth-eye-btn"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    tabIndex={-1}>
+                                <button
+                                    type="button"
+                                    className="auth-eye-btn"
+                                    onClick={() => setShowPassword(v => !v)}
+                                    tabIndex={-1}
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                >
                                     {showPassword ? <MdVisibilityOff size={18} /> : <MdVisibility size={18} />}
                                 </button>
                             </div>
-                            {formErrors.password && <p className="form-error-msg">{formErrors.password}</p>}
+
+                            {fieldErrors.password ? (
+                                <p className="auth-field-error" id="password-reg-error" role="alert">
+                                    <span aria-hidden="true">⚠</span> {fieldErrors.password}
+                                </p>
+                            ) : (
+                                /* Password Strength Meter */
+                                formData.password && strength && (
+                                    <div className="auth-strength" id="password-strength" aria-live="polite">
+                                        <div className="auth-strength-track">
+                                            <div className={`auth-strength-bar auth-strength-bar--${strength.level}`} />
+                                        </div>
+                                        <p className={`auth-strength-label auth-strength-label--${strength.level}`}>
+                                            {strength.label}
+                                        </p>
+                                    </div>
+                                )
+                            )}
                         </div>
 
-                        {/* Confirm Password */}
+                        {/* ── Confirm Password ── */}
                         <div className="form-group">
-                            <label className="form-label" htmlFor="confirmPassword">Confirm Password</label>
+                            <label className="form-label" htmlFor="reg-confirm">Confirm Password</label>
                             <div className="auth-field-wrapper">
-                                <MdLock className="auth-field-icon" />
+                                <span className="auth-field-icon-wrap" aria-hidden="true">
+                                    <MdLock />
+                                </span>
                                 <input
-                                    id="confirmPassword" name="confirmPassword"
+                                    id="reg-confirm"
+                                    name="confirmPassword"
                                     type={showConfirm ? 'text' : 'password'}
-                                    className={`form-control auth-field-input auth-field-input--pr ${formErrors.confirmPassword ? 'form-control-error' : ''}`}
+                                    className={`auth-field-input auth-field-input--pr ${
+                                        fieldErrors.confirmPassword
+                                            ? 'auth-field-input--error'
+                                            : confirmMatch
+                                            ? 'auth-field-input--success'
+                                            : ''
+                                    }`}
                                     placeholder="Repeat your password"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     autoComplete="new-password"
+                                    aria-describedby={fieldErrors.confirmPassword ? 'confirm-error' : undefined}
+                                    aria-invalid={!!fieldErrors.confirmPassword}
                                 />
-                                <button type="button" className="auth-eye-btn"
-                                    onClick={() => setShowConfirm(!showConfirm)}
-                                    tabIndex={-1}>
+                                {/* Live match indicator */}
+                                {formData.confirmPassword && (
+                                    <span
+                                        className={`auth-confirm-indicator ${confirmMatch ? 'auth-confirm-indicator--match' : 'auth-confirm-indicator--mismatch'}`}
+                                        aria-hidden="true"
+                                    >
+                                        {confirmMatch ? '✓' : '✗'}
+                                    </span>
+                                )}
+                                <button
+                                    type="button"
+                                    className="auth-eye-btn"
+                                    onClick={() => setShowConfirm(v => !v)}
+                                    tabIndex={-1}
+                                    aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                                >
                                     {showConfirm ? <MdVisibilityOff size={18} /> : <MdVisibility size={18} />}
                                 </button>
                             </div>
-                            {formErrors.confirmPassword && <p className="form-error-msg">{formErrors.confirmPassword}</p>}
+                            {fieldErrors.confirmPassword && (
+                                <p className="auth-field-error" id="confirm-error" role="alert">
+                                    <span aria-hidden="true">⚠</span> {fieldErrors.confirmPassword}
+                                </p>
+                            )}
+                            {confirmMatch && (
+                                <p className="auth-field-hint" style={{ color: '#16A34A', fontWeight: 500 }}>
+                                    ✓ Passwords match
+                                </p>
+                            )}
                         </div>
 
+                        {/* ── Submit ── */}
                         <button
                             type="submit"
                             className={`auth-submit-btn ${loading ? 'auth-submit-btn--loading' : ''}`}
                             disabled={loading}
+                            aria-busy={loading}
                         >
                             {loading ? (
-                                <><span className="auth-btn-spinner" /> Creating account...</>
+                                <>
+                                    <span className="auth-btn-spinner" aria-hidden="true" />
+                                    Creating account...
+                                </>
                             ) : (
-                                <><span>Create Account</span><span className="auth-btn-arrow">→</span></>
+                                <>
+                                    <span>Create Account</span>
+                                    <span className="auth-btn-arrow" aria-hidden="true">→</span>
+                                </>
                             )}
                         </button>
                     </form>

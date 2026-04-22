@@ -3,298 +3,380 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ticketsAPI, equipmentAPI } from '../../services/api';
 import {
-    HiOutlineDesktopComputer, HiOutlineTicket, HiOutlineRefresh,
-    HiOutlineCheckCircle, HiOutlineClock, HiOutlineExclamationCircle,
-    HiOutlineArrowRight
-} from 'react-icons/hi';
+    MdBuild, MdConfirmationNumber, MdCheckCircle,
+    MdSchedule, MdArrowForward, MdReceipt, MdWarning
+} from 'react-icons/md';
 
-const PriorityBadge = ({ priority }) => {
-    const map = {
-        critical: 'bg-red-100 text-red-700',
-        high: 'bg-amber-100 text-amber-700',
-        medium: 'bg-blue-100 text-blue-700',
-        low: 'bg-slate-100 text-slate-600',
-    };
-    return <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${map[priority] || map.low}`}>{priority || 'N/A'}</span>;
+/* ── Shared status/priority helpers ── */
+const STATUS_COLORS = {
+    open:          '#EF4444',
+    assigned:      '#F59E0B',
+    'in-progress': '#3B82F6',
+    'on-hold':     '#6B7280',
+    resolved:      '#22C55E',
+    closed:        '#94A3B8',
+};
+
+const PRIORITY_MAP = {
+    critical: 'badge badge-critical',
+    high:     'badge badge-high',
+    medium:   'badge badge-info',
+    low:      'badge badge-gray',
 };
 
 const StatusBadge = ({ status }) => {
-    const dotColor = status === 'open' ? 'bg-red-500' : status === 'in-progress' ? 'bg-blue-500' : status === 'resolved' ? 'bg-emerald-500' : 'bg-slate-400';
-    const label = status?.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const color = STATUS_COLORS[status] || STATUS_COLORS.closed;
+    const label = status?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Unknown';
     return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold uppercase border bg-slate-50 border-slate-200 text-slate-600">
-            <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+        <span className="badge" style={{
+            background: color + '18', color,
+            border: `1px solid ${color}30`,
+        }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
             {label}
         </span>
     );
 };
 
+const PriorityBadge = ({ priority }) => (
+    <span className={PRIORITY_MAP[priority] || PRIORITY_MAP.low}>{priority || 'N/A'}</span>
+);
+
+/* ── Equipment status helpers ── */
+const EQ_STATUS = {
+    operational:       { dot: '#22C55E', label: 'OK',    bg: '#F0FDF4', color: '#166534' },
+    'under maintenance': { dot: '#F59E0B', label: 'Maint.', bg: '#FFFBEB', color: '#92400E' },
+    'out of service':  { dot: '#EF4444', label: 'Down', bg: '#FEF2F2', color: '#991B1B' },
+};
+
+/* ── Skeleton ── */
+function DashboardSkeleton() {
+    return (
+        <div>
+            <div style={{ marginBottom: 28 }}>
+                <div className="skeleton skeleton-title" style={{ width: 220, marginBottom: 8 }} />
+                <div className="skeleton skeleton-text-sm" style={{ width: 280 }} />
+            </div>
+            <div className="kpi-grid">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="skeleton-card">
+                        <div className="skeleton-stat-card">
+                            <div className="skeleton skeleton-icon" />
+                            <div className="skeleton-stat-info">
+                                <div className="skeleton skeleton-title" style={{ width: '50%' }} />
+                                <div className="skeleton skeleton-text" style={{ width: '70%' }} />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                {[0, 1].map(i => (
+                    <div key={i} className="card">
+                        <div className="card-header"><div className="skeleton skeleton-text" style={{ width: 140 }} /></div>
+                        {[...Array(4)].map((_, j) => (
+                            <div key={j} className="skeleton-table-row">
+                                <div className="skeleton skeleton-text" style={{ flex: 1 }} />
+                                <div className="skeleton skeleton-text" style={{ width: 60 }} />
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+            <div className="card">
+                <div className="card-header"><div className="skeleton skeleton-text" style={{ width: 120 }} /></div>
+                <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="skeleton skeleton-rect" style={{ height: 80 }} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const ClientDashboard = () => {
-    const { user } = useAuth();
-    const navigate = useNavigate();
+    const { user }   = useAuth();
+    const navigate   = useNavigate();
     const [equipment, setEquipment] = useState([]);
-    const [tickets, setTickets] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [tickets,   setTickets]   = useState([]);
+    const [loading,   setLoading]   = useState(true);
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const [eqRes, ticketRes] = await Promise.all([
-                equipmentAPI.getAll({ limit: 50 }),
-                ticketsAPI.getAll({ limit: 50 }),
-            ]);
-            setEquipment(eqRes.data?.data?.equipment || []);
-            setTickets(ticketRes.data?.data?.tickets || []);
-        } catch (err) {
-            console.error('Failed to load client data:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        Promise.all([
+            equipmentAPI.getAll({ limit: 50 }),
+            ticketsAPI.getAll({ limit: 50 }),
+        ])
+            .then(([eqRes, ticketRes]) => {
+                setEquipment(eqRes.data?.data?.equipment || []);
+                setTickets(ticketRes.data?.data?.tickets || []);
+            })
+            .catch(err => console.error('Failed to load client data:', err))
+            .finally(() => setLoading(false));
+    }, []);
 
-    useEffect(() => { fetchData(); }, []);
-
-    const totalEquipment = equipment.length;
-    const openTickets = tickets.filter(t => t.status === 'open').length;
+    const totalEquipment    = equipment.length;
+    const openTickets       = tickets.filter(t => t.status === 'open').length;
     const inProgressTickets = tickets.filter(t => t.status === 'in-progress').length;
-    const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
-    const lastServiceDate = tickets
+    const resolvedTickets   = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
+    const operationalCount  = equipment.filter(e => e.status === 'operational').length;
+    const maintenanceCount  = equipment.filter(e => e.status === 'under maintenance').length;
+    const outOfServiceCount = equipment.filter(e => e.status === 'out of service').length;
+    const lastServiceDate   = tickets
         .filter(t => t.status === 'resolved' || t.status === 'closed')
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]?.updatedAt;
+    const recentTickets = [...tickets]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
 
-    const operationalCount = equipment.filter(e => e.status === 'operational').length;
-    const maintenanceCount = equipment.filter(e => e.status === 'under maintenance').length;
-    const outOfServiceCount = equipment.filter(e => e.status === 'out of service').length;
+    if (loading) return <DashboardSkeleton />;
 
-    const recentTickets = [...tickets].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+    const kpiCards = [
+        {
+            icon: <MdBuild />, iconClass: 'stat-icon-blue',
+            value: totalEquipment, label: 'Total Equipment',
+            sub: `${operationalCount} operational · ${maintenanceCount > 0 ? maintenanceCount + ' maint.' : ''}`,
+        },
+        {
+            icon: <MdWarning />, iconClass: 'stat-icon-red',
+            value: openTickets, label: 'Open Tickets',
+            sub: `${inProgressTickets} in progress`,
+        },
+        {
+            icon: <MdCheckCircle />, iconClass: 'stat-icon-green',
+            value: resolvedTickets, label: 'Resolved Tickets',
+            sub: 'All time',
+        },
+        {
+            icon: <MdSchedule />, iconClass: 'stat-icon-navy',
+            value: lastServiceDate
+                ? new Date(lastServiceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : 'N/A',
+            label: 'Last Service',
+            sub: 'Most recent resolution',
+            small: true,
+        },
+    ];
 
-    if (loading) {
-        return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-                <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
-                <p className="text-sm font-medium text-slate-500">Loading your dashboard...</p>
-            </div>
-        );
-    }
+    const quickActions = [
+        { icon: <MdConfirmationNumber />, label: 'Request Service', sub: 'Submit a new service ticket', path: '/client/tickets?new=1', color: 'var(--brand-red)' },
+        { icon: <MdBuild />,             label: 'View Equipment',  sub: 'Check status & warranty info', path: '/client/equipment',    color: 'var(--brand-navy)' },
+        { icon: <MdReceipt />,           label: 'My Invoices',     sub: 'View billing & invoices',       path: '/client/invoices',      color: '#16A34A' },
+    ];
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800 mb-1">Client Dashboard</h1>
-                    <p className="text-slate-500 text-sm">Welcome back, <strong>{user?.name}</strong>. Here's your service overview.</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => navigate('/client/tickets?new=1')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#E63946] text-white rounded-xl font-semibold shadow-sm hover:bg-red-700 transition-all active:scale-95"
-                    >
-                        + New Ticket
-                    </button>
+        <div>
+            {/* Page Header */}
+            <div className="page-header">
+                <div className="page-header-row">
+                    <div>
+                        <h1 className="page-header-title">Client <span>Dashboard</span></h1>
+                        <p className="page-header-sub">
+                            Welcome back, <strong>{user?.name}</strong>. Here's your service overview.
+                        </p>
+                    </div>
+                    <div className="page-header-actions">
+                        <button onClick={() => navigate('/client/tickets?new=1')} className="btn btn-primary">
+                            + New Ticket
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-blue-500">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                            <HiOutlineDesktopComputer className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-slate-800">{totalEquipment}</div>
-                            <div className="text-xs font-semibold text-slate-500">Total Equipment</div>
-                        </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex gap-3 text-xs font-medium">
-                        <span className="text-emerald-600">{operationalCount} OK</span>
-                        {maintenanceCount > 0 && <span className="text-amber-600">{maintenanceCount} Maint.</span>}
-                        {outOfServiceCount > 0 && <span className="text-red-600">{outOfServiceCount} Down</span>}
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-red-500">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                            <HiOutlineExclamationCircle className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-slate-800">{openTickets}</div>
-                            <div className="text-xs font-semibold text-slate-500">Open Tickets</div>
-                        </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs font-medium text-amber-600">
-                        {inProgressTickets} in progress
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-emerald-500">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                            <HiOutlineCheckCircle className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-slate-800">{resolvedTickets}</div>
-                            <div className="text-xs font-semibold text-slate-500">Resolved Tickets</div>
-                        </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs font-medium text-slate-400">
-                        All time
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-5 shadow-sm border-l-4 border-slate-300">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
-                            <HiOutlineClock className="text-xl" />
-                        </div>
-                        <div>
-                            <div className="text-base font-bold text-slate-800 leading-tight">
-                                {lastServiceDate ? new Date(lastServiceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+            {/* KPI Grid */}
+            <div className="kpi-grid">
+                {kpiCards.map((card, i) => (
+                    <div key={i} className="stat-card">
+                        <div className={`stat-icon ${card.iconClass}`}>{card.icon}</div>
+                        <div className="stat-info">
+                            <div className={card.small ? '' : 'stat-value'} style={card.small ? { fontSize: 18, fontWeight: 800, color: 'var(--brand-navy)', marginBottom: 4 } : {}}>
+                                {card.value}
                             </div>
-                            <div className="text-xs font-semibold text-slate-500">Last Service</div>
+                            <div className="stat-label">{card.label}</div>
+                            <div className="stat-change" style={{ color: 'var(--gray-500)', fontWeight: 400 }}>{card.sub}</div>
                         </div>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs font-medium text-slate-400">
-                        Most recent resolution
-                    </div>
-                </div>
+                ))}
             </div>
 
-            {/* Two-column row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Equipment + Tickets Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+
                 {/* Equipment Health */}
-                <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="flex items-center justify-between p-5 border-b border-slate-200">
+                <div className="card">
+                    <div className="card-header">
                         <div>
-                            <h2 className="text-base font-bold text-slate-800">Equipment Health</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">{totalEquipment} registered devices</p>
+                            <h2 className="card-title">Equipment Health</h2>
+                            <p className="page-header-sub" style={{ marginTop: 2 }}>{totalEquipment} registered devices</p>
                         </div>
-                        <button onClick={() => navigate('/client/equipment')} className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                            View All <HiOutlineArrowRight />
+                        <button onClick={() => navigate('/client/equipment')} className="btn btn-ghost btn-sm">
+                            View All <MdArrowForward />
                         </button>
                     </div>
 
                     {/* Health bar */}
                     {totalEquipment > 0 && (
-                        <div className="px-5 pt-4 pb-2">
-                            <div className="flex rounded-full overflow-hidden h-2 mb-3">
-                                {operationalCount > 0 && <div className="bg-emerald-500" style={{ width: `${(operationalCount / totalEquipment) * 100}%` }} />}
-                                {maintenanceCount > 0 && <div className="bg-amber-400" style={{ width: `${(maintenanceCount / totalEquipment) * 100}%` }} />}
-                                {outOfServiceCount > 0 && <div className="bg-red-500" style={{ width: `${(outOfServiceCount / totalEquipment) * 100}%` }} />}
+                        <div style={{ padding: '14px 20px 10px' }}>
+                            <div style={{ display: 'flex', borderRadius: 6, overflow: 'hidden', height: 8, marginBottom: 10 }}>
+                                {operationalCount  > 0 && <div style={{ background: '#22C55E', width: `${(operationalCount  / totalEquipment) * 100}%`, transition: 'width 600ms ease' }} />}
+                                {maintenanceCount  > 0 && <div style={{ background: '#F59E0B', width: `${(maintenanceCount  / totalEquipment) * 100}%`, transition: 'width 600ms ease' }} />}
+                                {outOfServiceCount > 0 && <div style={{ background: '#EF4444', width: `${(outOfServiceCount / totalEquipment) * 100}%`, transition: 'width 600ms ease' }} />}
                             </div>
-                            <div className="flex gap-4 text-xs font-medium text-slate-600">
-                                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> {operationalCount} Operational</span>
-                                {maintenanceCount > 0 && <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" /> {maintenanceCount} Maintenance</span>}
-                                {outOfServiceCount > 0 && <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> {outOfServiceCount} Down</span>}
+                            <div style={{ display: 'flex', gap: 14, fontSize: 11, fontWeight: 600, flexWrap: 'wrap' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#166534' }}>
+                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
+                                    {operationalCount} Operational
+                                </span>
+                                {maintenanceCount > 0 && (
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#92400E' }}>
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B', display: 'inline-block' }} />
+                                        {maintenanceCount} Maintenance
+                                    </span>
+                                )}
+                                {outOfServiceCount > 0 && (
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#991B1B' }}>
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444', display: 'inline-block' }} />
+                                        {outOfServiceCount} Down
+                                    </span>
+                                )}
                             </div>
                         </div>
                     )}
 
-                    <div className="divide-y divide-slate-100">
-                        {equipment.slice(0, 5).map(item => {
-                            const s = item.status;
-                            const dotCls = s === 'operational' ? 'bg-emerald-500' : s === 'under maintenance' ? 'bg-amber-400' : 'bg-red-500';
+                    {equipment.length === 0 ? (
+                        <div className="empty-state" style={{ padding: '32px 20px' }}>
+                            <div className="empty-state-icon"><MdBuild /></div>
+                            <h3 className="empty-state-title">No equipment registered</h3>
+                        </div>
+                    ) : (
+                        equipment.slice(0, 5).map(item => {
+                            const s   = item.status;
+                            const cfg = EQ_STATUS[s] || EQ_STATUS['out of service'];
                             return (
-                                <div key={item._id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50 transition-colors">
-                                    <div className="flex items-center gap-3">
-                                        <span className={`w-2 h-2 rounded-full shrink-0 ${dotCls}`} />
+                                <div
+                                    key={item._id}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                        padding: '11px 20px', borderTop: '1px solid var(--gray-100)',
+                                        transition: 'background 150ms ease',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--gray-50)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.dot, flexShrink: 0 }} />
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-800">{item.name}</p>
-                                            <p className="text-xs text-slate-500">{item.category} · SN: {item.serialNumber}</p>
+                                            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', margin: 0 }}>{item.name}</p>
+                                            <p style={{ fontSize: 11, color: 'var(--gray-500)', margin: 0 }}>{item.category} · SN: {item.serialNumber}</p>
                                         </div>
                                     </div>
-                                    <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${s === 'operational' ? 'bg-emerald-100 text-emerald-700' : s === 'under maintenance' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
-                                        {s === 'operational' ? 'OK' : s === 'under maintenance' ? 'Maint.' : 'Down'}
+                                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', padding: '3px 9px', borderRadius: 20, background: cfg.bg, color: cfg.color }}>
+                                        {cfg.label}
                                     </span>
                                 </div>
                             );
-                        })}
-                        {equipment.length === 0 && (
-                            <div className="px-5 py-8 text-center text-slate-400 text-sm">No equipment registered.</div>
-                        )}
-                    </div>
+                        })
+                    )}
                 </div>
 
                 {/* Recent Tickets */}
-                <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="flex items-center justify-between p-5 border-b border-slate-200">
+                <div className="card">
+                    <div className="card-header">
                         <div>
-                            <h2 className="text-base font-bold text-slate-800">Recent Tickets</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">{tickets.length} total</p>
+                            <h2 className="card-title">Recent Tickets</h2>
+                            <p className="page-header-sub" style={{ marginTop: 2 }}>{tickets.length} total</p>
                         </div>
-                        <button onClick={() => navigate('/client/tickets')} className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                            View All <HiOutlineArrowRight />
+                        <button onClick={() => navigate('/client/tickets')} className="btn btn-ghost btn-sm">
+                            View All <MdArrowForward />
                         </button>
                     </div>
-                    <div className="divide-y divide-slate-100">
-                        {recentTickets.map(ticket => (
-                            <div key={ticket._id} className="flex items-start justify-between px-5 py-3 hover:bg-slate-50 transition-colors gap-3">
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-slate-800 truncate">
-                                        {ticket.description?.substring(0, 60) || 'No description'}
-                                        {ticket.description?.length > 60 ? '...' : ''}
+
+                    {recentTickets.length === 0 ? (
+                        <div className="empty-state" style={{ padding: '32px 20px' }}>
+                            <div className="empty-state-icon"><MdConfirmationNumber /></div>
+                            <h3 className="empty-state-title">No tickets yet</h3>
+                            <p className="empty-state-desc">Submit a ticket to request service for your equipment.</p>
+                            <button onClick={() => navigate('/client/tickets?new=1')} className="btn btn-primary btn-sm">
+                                + New Ticket
+                            </button>
+                        </div>
+                    ) : (
+                        recentTickets.map(ticket => (
+                            <div
+                                key={ticket._id}
+                                style={{
+                                    display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+                                    padding: '11px 20px', borderTop: '1px solid var(--gray-100)',
+                                    gap: 12, transition: 'background 150ms ease',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'var(--gray-50)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {ticket.description?.substring(0, 55) || 'No description'}
+                                        {ticket.description?.length > 55 ? '…' : ''}
                                     </p>
-                                    <p className="text-xs text-slate-500 mt-0.5">
+                                    <p style={{ fontSize: 11, color: 'var(--gray-500)', margin: '3px 0 0' }}>
                                         {ticket.equipmentId?.name || 'Unknown Equipment'} · {new Date(ticket.createdAt).toLocaleDateString()}
                                     </p>
                                 </div>
-                                <div className="flex flex-col items-end gap-1 shrink-0">
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
                                     <StatusBadge status={ticket.status} />
                                     <PriorityBadge priority={ticket.priority} />
                                 </div>
                             </div>
-                        ))}
-                        {tickets.length === 0 && (
-                            <div className="px-5 py-8 text-center text-slate-400 text-sm">No tickets yet.</div>
-                        )}
-                    </div>
+                        ))
+                    )}
                 </div>
             </div>
 
-            {/* Quick actions */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <h2 className="text-base font-bold text-slate-800 mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <button
-                        onClick={() => navigate('/client/tickets?new=1')}
-                        className="flex items-center gap-3 p-4 border border-blue-200 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left"
-                    >
-                        <div className="w-10 h-10 bg-blue-600 text-white rounded-md flex items-center justify-center shrink-0">
-                            <HiOutlineTicket className="text-xl" />
-                        </div>
-                        <div>
-                            <p className="font-semibold text-slate-800 text-sm">Request Service</p>
-                            <p className="text-xs text-slate-500">Submit a new service ticket</p>
-                        </div>
-                    </button>
-
-                    <button
-                        onClick={() => navigate('/client/equipment')}
-                        className="flex items-center gap-3 p-4 border border-slate-200 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors text-left"
-                    >
-                        <div className="w-10 h-10 bg-slate-700 text-white rounded-md flex items-center justify-center shrink-0">
-                            <HiOutlineDesktopComputer className="text-xl" />
-                        </div>
-                        <div>
-                            <p className="font-semibold text-slate-800 text-sm">View Equipment</p>
-                            <p className="text-xs text-slate-500">Check status & warranty info</p>
-                        </div>
-                    </button>
-
-                    <button
-                        onClick={() => navigate('/client/tickets')}
-                        className="flex items-center gap-3 p-4 border border-slate-200 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors text-left"
-                    >
-                        <div className="w-10 h-10 bg-emerald-600 text-white rounded-md flex items-center justify-center shrink-0">
-                            <HiOutlineCheckCircle className="text-xl" />
-                        </div>
-                        <div>
-                            <p className="font-semibold text-slate-800 text-sm">Track Tickets</p>
-                            <p className="text-xs text-slate-500">Monitor all service requests</p>
-                        </div>
-                    </button>
+            {/* Quick Actions */}
+            <div className="card">
+                <div className="card-header">
+                    <h2 className="card-title">Quick Actions</h2>
+                </div>
+                <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+                    {quickActions.map(action => (
+                        <button
+                            key={action.path}
+                            onClick={() => navigate(action.path)}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: 14,
+                                padding: '14px 16px',
+                                border: '1.5px solid var(--gray-200)',
+                                borderRadius: 12, background: 'none',
+                                cursor: 'pointer', textAlign: 'left',
+                                fontFamily: 'var(--font-family)',
+                                transition: 'all 200ms ease',
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.background = 'var(--gray-50)';
+                                e.currentTarget.style.borderColor = 'var(--gray-300)';
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 4px 14px rgba(13,27,62,0.08)';
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.background = 'none';
+                                e.currentTarget.style.borderColor = 'var(--gray-200)';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        >
+                            <div style={{
+                                width: 40, height: 40, background: action.color,
+                                color: 'white', borderRadius: 10,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 20, flexShrink: 0,
+                            }}>
+                                {action.icon}
+                            </div>
+                            <div>
+                                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-dark)', margin: 0 }}>{action.label}</p>
+                                <p style={{ fontSize: 11, color: 'var(--gray-500)', margin: 0 }}>{action.sub}</p>
+                            </div>
+                        </button>
+                    ))}
                 </div>
             </div>
         </div>
