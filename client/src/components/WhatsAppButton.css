@@ -1,0 +1,54 @@
+/* ── Inline WhatsApp Button for Navbar ── */
+.wa-fab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #25D366;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 10px 16px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.wa-fab:hover {
+    background: #20BA56;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.wa-fab:active {
+    transform: translateY(0);
+}
+
+.wa-fab-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #ffffff;
+}
+
+.wa-fab-label {
+    color: #ffffff;
+}
+
+/* Wrappers in the Navbar */
+.nav-wa-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.nav-wa-wrap-mobile {
+    width: 100%;
+}
+
+.nav-wa-wrap-mobile .wa-fab {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    font-size: 15px;
+}
