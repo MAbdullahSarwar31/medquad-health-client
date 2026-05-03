@@ -1,4 +1,4 @@
-const { validationResult, check } = require('express-validator');
+const { validationResult, body, param } = require('express-validator');
 
 // Middleware to handle validation results
 const validate = (req, res, next) => {
@@ -16,57 +16,57 @@ const validate = (req, res, next) => {
 
 // Validation rules for Auth
 const validateRegister = [
-    check('name', 'Name is required and must be at least 2 characters').isString().trim().isLength({ min: 2, max: 100 }),
-    check('email', 'Please include a valid email').isEmail().normalizeEmail(),
-    check('password', 'Password must be at least 8 characters').isLength({ min: 8 }),
-    check('role', 'Invalid role').optional().isIn(['public', 'client', 'employee', 'admin']),
-    check('phone', 'Phone number must be a string').optional().isString().trim(),
+    body('name', 'Name is required and must be at least 2 characters').isString().trim().isLength({ min: 2, max: 100 }),
+    body('email', 'Please include a valid email').isEmail().normalizeEmail(),
+    body('password', 'Password must be at least 8 characters').isLength({ min: 8 }),
+    body('role', 'Invalid role').optional().isIn(['public', 'client', 'employee', 'admin']),
+    body('phone', 'Phone number must be a string').optional().isString().trim(),
     validate
 ];
 
 const validateLogin = [
-    check('email', 'Please include a valid email').isEmail().normalizeEmail(),
-    check('password', 'Password is required').notEmpty(),
+    body('email', 'Please include a valid email').isEmail().normalizeEmail(),
+    body('password', 'Password is required').notEmpty(),
     validate
 ];
 
 // Validation rules for Tickets
 const validateTicketCreate = [
-    check('equipmentId', 'Equipment ID is required').isMongoId(),
-    check('description', 'Description must be at least 10 characters').isString().trim().isLength({ min: 10 }),
-    check('priority', 'Invalid priority').optional().trim().toLowerCase().isIn(['low', 'medium', 'high', 'critical']),
+    body('equipmentId', 'Equipment ID is required').isMongoId(),
+    body('description', 'Description must be at least 10 characters').isString().trim().isLength({ min: 10 }),
+    body('priority', 'Invalid priority').optional().trim().toLowerCase().isIn(['low', 'medium', 'high', 'critical']),
     validate
 ];
 
 const validateTicketUpdate = [
-    check('status', 'Invalid status').optional().isIn(['open', 'assigned', 'in-progress', 'on-hold', 'resolved', 'closed']),
-    check('priority', 'Invalid priority').optional().isIn(['low', 'medium', 'high', 'critical']),
-    check('assignedEmployee', 'Invalid employee ID').optional().isMongoId(),
-    check('description', 'Description must be a string').optional().isString().trim(),
+    body('status', 'Invalid status').optional().isIn(['open', 'assigned', 'in-progress', 'on-hold', 'resolved', 'closed']),
+    body('priority', 'Invalid priority').optional().trim().toLowerCase().isIn(['low', 'medium', 'high', 'critical']),
+    body('assignedEmployee', 'Invalid employee ID').optional().isMongoId(),
+    body('description', 'Description must be a string').optional().isString().trim(),
     validate
 ];
 
 const validateTicketAddUpdate = [
-    check('message', 'Message is required').isString().notEmpty().trim(),
-    check('status', 'Invalid status').optional().isIn(['open', 'assigned', 'in-progress', 'on-hold', 'resolved', 'closed']),
+    body('message', 'Message is required').isString().notEmpty().trim(),
+    body('status', 'Invalid status').optional().isIn(['open', 'assigned', 'in-progress', 'on-hold', 'resolved', 'closed']),
     validate
 ];
 
 // Validation rules for Equipment
 const validateEquipmentCreate = [
-    check('name', 'Equipment name is required').isString().notEmpty().trim(),
-    check('model', 'Model is required').isString().notEmpty().trim(),
-    check('manufacturer', 'Manufacturer is required').isString().notEmpty().trim(),
-    check('category', 'Invalid category').isIn(['MRI', 'CT', 'Ultrasound', 'X-Ray', 'ECG', 'Ventilator', 'Monitor', 'Other']),
-    check('serialNumber', 'Serial number is required').isString().notEmpty().trim(),
-    check('clientId', 'Invalid client ID').optional().isMongoId(),
-    check('status', 'Invalid status').optional().isIn(['operational', 'maintenance', 'down', 'decommissioned']),
+    body('name', 'Equipment name is required').isString().notEmpty().trim(),
+    body('model', 'Model is required').isString().notEmpty().trim(),
+    body('manufacturer', 'Manufacturer is required').isString().notEmpty().trim(),
+    body('category', 'Invalid category').isIn(['MRI', 'CT', 'Ultrasound', 'X-Ray', 'ECG', 'Ventilator', 'Monitor', 'Other']),
+    body('serialNumber', 'Serial number is required').isString().notEmpty().trim(),
+    body('clientId', 'Invalid client ID').optional().isMongoId(),
+    body('status', 'Invalid status').optional().isIn(['operational', 'maintenance', 'down', 'decommissioned']),
     validate
 ];
 
 // Reusable ID validation
 const validateIdParam = [
-    check('id', 'Invalid ID format').isMongoId(),
+    param('id', 'Invalid ID format').isMongoId(),
     validate
 ];
 
