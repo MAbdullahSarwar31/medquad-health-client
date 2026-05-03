@@ -34,7 +34,7 @@ const validateLogin = [
 const validateTicketCreate = [
     check('equipmentId', 'Equipment ID is required').isMongoId(),
     check('description', 'Description must be at least 10 characters').isString().trim().isLength({ min: 10 }),
-    check('priority', 'Invalid priority').optional().isIn(['low', 'medium', 'high', 'critical']),
+    check('priority', 'Invalid priority').optional().trim().toLowerCase().isIn(['low', 'medium', 'high', 'critical']),
     validate
 ];
 
