@@ -326,7 +326,7 @@
 .pub-footer-tagline {
     font-size: 13px;
     line-height: 1.75;
-    color: rgba(255, 255, 255, 0.50);
+    color: rgba(255, 255, 255, 0.68);
     margin-bottom: 20px;
 }
 
@@ -371,7 +371,7 @@
 
 .pub-footer-link {
     font-size: 13.5px;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.72);
     text-decoration: none;
     transition: color 150ms ease;
 }
@@ -382,12 +382,12 @@
 
 .pub-footer-info {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.50);
+    color: rgba(255, 255, 255, 0.68);
     line-height: 1.65;
 }
 
 .pub-footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
     padding: 20px 32px;
     max-width: 1240px;
     margin: 0 auto;
@@ -397,18 +397,18 @@
     flex-wrap: wrap;
     gap: 8px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.54);
 }
 
 /* ============================================================
    PUBLIC PAGE — SHARED SECTION STYLES
    ============================================================ */
 .pub-section {
-    padding: 96px 32px;
+    padding: 112px 32px;
 }
 
 .pub-section--gray {
-    background: var(--gray-50);
+    background: #F4F6FA;
 }
 
 .pub-section--navy {
@@ -477,8 +477,8 @@
 
 .pub-section-sub {
     font-size: 16px;
-    color: var(--gray-600);
-    line-height: 1.75;
+    color: #4a5568;
+    line-height: 1.78;
     max-width: 620px;
 }
 

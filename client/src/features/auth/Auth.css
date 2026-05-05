@@ -189,7 +189,7 @@
 /* Description */
 .auth-brand-desc {
     font-size: 13.5px;
-    color: rgba(255, 255, 255, 0.48);
+    color: rgba(255, 255, 255, 0.66);
     line-height: 1.78;
     margin-bottom: 44px;
 }
@@ -226,7 +226,7 @@
 
 .auth-brand-stat-label {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.38);
+    color: rgba(255, 255, 255, 0.60);
     font-weight: 500;
 }
 

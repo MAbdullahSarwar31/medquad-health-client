@@ -135,10 +135,10 @@
 }
 
 .sidebar-link--active {
-    background: var(--brand-red) !important;
+    background: linear-gradient(135deg, #E8192C 0%, #C0141F 100%) !important;
     color: var(--white) !important;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(232, 25, 44, 0.35);
+    box-shadow: 0 4px 16px rgba(232, 25, 44, 0.42), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .sidebar-link-icon {
@@ -232,7 +232,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: var(--shadow-xs);
+    box-shadow: 0 1px 3px rgba(13, 27, 62, 0.06), 0 1px 0 rgba(13, 27, 62, 0.03);
     flex-shrink: 0;
 }
 
