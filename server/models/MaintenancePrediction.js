@@ -19,15 +19,26 @@ const maintenancePredictionSchema = new mongoose.Schema(
         },
         failureType: {
             type: String,
-            default: 'general',
+            default: 'Component Degradation',
         },
         modelVersion: {
             type: String,
-            default: '1.0.0',
+            default: 'medquad-ai-v2.0',
         },
         recommendations: {
             type: String,
             default: '',
+        },
+        // Structured risk tier derived from confidence thresholds
+        riskTier: {
+            type: String,
+            enum: ['critical', 'high', 'moderate'],
+            default: 'moderate',
+        },
+        // Detailed list of contributing risk factors for transparency
+        riskFactors: {
+            type: [String],
+            default: [],
         },
         isAcknowledged: {
             type: Boolean,
@@ -53,5 +64,6 @@ maintenancePredictionSchema.index({ equipmentId: 1 });
 maintenancePredictionSchema.index({ predictedFailureDate: 1 });
 maintenancePredictionSchema.index({ confidence: -1 });
 maintenancePredictionSchema.index({ isAcknowledged: 1 });
+maintenancePredictionSchema.index({ riskTier: 1 });
 
 module.exports = mongoose.model('MaintenancePrediction', maintenancePredictionSchema);
