@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Deep navy rounded square -->
+  <rect width="512" height="512" rx="108" fill="#1B2A4A"/>
+  <!-- Bold "M" monogram -->
+  <path d="M96 388V124h56l104 156 104-156h56v264h-56V220L268 364h-24L152 220v168z" fill="#FFFFFF"/>
+  <!-- Red accent bar — brand signature -->
+  <rect x="96" y="404" width="320" height="20" rx="10" fill="#E63946"/>
+</svg>
