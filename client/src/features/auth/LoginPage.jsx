@@ -4,11 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { MdVisibility, MdVisibilityOff, MdEmail, MdLock } from 'react-icons/md';
 import './Auth.css';
 
-const DEMO_CREDENTIALS = [
-    { role: 'Admin',    email: 'admin@medquad.com',    password: 'Admin@2026',  color: '#0D1B3E' },
-    { role: 'Client',   email: 'ahmed@shifa.com.pk',   password: 'Client@2026', color: '#1A4DB4' },
-    { role: 'Employee', email: 'usman@medquad.com',    password: 'Emp@2026',    color: '#E8192C' },
-];
+
 
 /* Simple email format check */
 function isValidEmail(val) {
@@ -25,7 +21,7 @@ export default function LoginPage() {
     const [formError, setFormError]   = useState('');
     const [fieldErrors, setFieldErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [filledDemo, setFilledDemo] = useState(null);
+
 
     /* Redirect if already authenticated */
     useEffect(() => {
@@ -82,15 +78,7 @@ export default function LoginPage() {
         }
     };
 
-    /* Fill demo credentials with visual feedback */
-    const fillDemo = (cred) => {
-        setFormData({ email: cred.email, password: cred.password });
-        setFieldErrors({});
-        setFormError('');
-        if (error) clearError();
-        setFilledDemo(cred.role);
-        setTimeout(() => setFilledDemo(null), 1500);
-    };
+
 
     /* Forgot password — show info (can be extended to a modal later) */
     const handleForgot = (e) => {
@@ -160,25 +148,7 @@ export default function LoginPage() {
                         <p className="auth-form-sub">Sign in to your Medquad portal account</p>
                     </div>
 
-                    {/* Demo credentials — HCI: Flexibility & Efficiency of Use */}
-                    <div className="auth-demo-section">
-                        <p className="auth-demo-label">Quick Demo Access</p>
-                        <div className="auth-demo-buttons">
-                            {DEMO_CREDENTIALS.map((cred) => (
-                                <button
-                                    key={cred.role}
-                                    type="button"
-                                    className="auth-demo-btn"
-                                    style={{ '--demo-color': cred.color }}
-                                    onClick={() => fillDemo(cred)}
-                                    title={`Fill credentials for ${cred.role}: ${cred.email}`}
-                                    aria-label={`Use ${cred.role} demo account`}
-                                >
-                                    {filledDemo === cred.role ? '✓ Filled' : cred.role}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+
 
                     {/* Global error — HCI: Visibility of System Status */}
                     {(error || formError) && (
