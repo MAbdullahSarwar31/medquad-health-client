@@ -183,13 +183,48 @@ const AdminEquipment = () => {
         );
     };
 
-    const getFallbackImage = (category) => {
-        const c = category?.toLowerCase() || '';
-        if (c.includes('mri')) return 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=400&auto=format&fit=crop';
-        if (c.includes('ct') || c.includes('scanner')) return 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=400&auto=format&fit=crop';
-        if (c.includes('x-ray')) return 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=400&auto=format&fit=crop';
-        return 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=400&auto=format&fit=crop'; // Generic medical tech
+    // Curated professional medical equipment photos — 8 categories fully covered
+    const EQUIPMENT_IMAGES = {
+        'MRI': [
+            'https://images.unsplash.com/photo-1576671081837-49000212a370?q=80&w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=600&auto=format&fit=crop',
+        ],
+        'CT': [
+            'https://images.unsplash.com/photo-1530026405186-ed1f139313f3?q=80&w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=600&auto=format&fit=crop',
+        ],
+        'X-Ray': [
+            'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=600&auto=format&fit=crop',
+        ],
+        'Ultrasound': [
+            'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?q=80&w=600&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1638202993928-7267aad84c31?q=80&w=600&auto=format&fit=crop',
+        ],
+        'ECG': [
+            'https://images.unsplash.com/photo-1628595351029-c2bf17511435?q=80&w=600&auto=format&fit=crop',
+        ],
+        'Ventilator': [
+            'https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=600&auto=format&fit=crop',
+        ],
+        'Monitor': [
+            'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=600&auto=format&fit=crop',
+        ],
+        'Other': [
+            'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=600&auto=format&fit=crop',
+        ],
     };
+
+    // Seeds from serial number so each device consistently gets the same image
+    const getFallbackImage = (category, serialNumber = '') => {
+        const key = Object.keys(EQUIPMENT_IMAGES).find(k =>
+            category?.toLowerCase().includes(k.toLowerCase())
+        ) || 'Other';
+        const images = EQUIPMENT_IMAGES[key];
+        const seed = serialNumber.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        return images[seed % images.length];
+    };
+
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-[fadeIn_0.3s_ease-out]">
@@ -289,7 +324,12 @@ const AdminEquipment = () => {
                         {equipment.map(item => (
                             <div className="bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col group cursor-pointer" key={item._id}>
                                 <div className="h-48 bg-slate-100 relative overflow-hidden border-b border-slate-100">
-                                    <img src={item.imageUrl || getFallbackImage(item.category)} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <img
+                                        src={item.imageUrl || getFallbackImage(item.category, item.serialNumber)}
+                                        alt={item.name}
+                                        onError={(e) => { e.target.onerror = null; e.target.src = getFallbackImage(item.category, item.serialNumber); }}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
                                     <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide text-slate-700 shadow-sm border border-white/20">
                                         {item.category}
                                     </div>

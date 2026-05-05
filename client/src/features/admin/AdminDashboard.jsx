@@ -200,72 +200,321 @@ const AdminDashboard = () => {
             </div>
 
             {/* AI Predictive Maintenance Widget */}
-            {predictions.length > 0 && (
-                <div className="card mb-6 border-l-4 border-l-brand-red">
-                    <div className="card-header border-b border-slate-100 pb-4 mb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
-                                <HiOutlineLightningBolt className="text-xl text-red-500" />
-                            </div>
-                            <div>
-                                <h2 className="text-base font-bold text-slate-800">AI Predictive Maintenance Alerts</h2>
-                                <p className="text-sm text-slate-500 font-medium">{predictions.length} critical issues predicted by heuristic engine</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {predictions.map(pred => (
-                            <div key={pred._id} className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                                <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                        <div className="font-bold text-slate-800">{pred.equipmentId?.name} ({pred.equipmentId?.model})</div>
-                                        <div className="text-xs text-slate-500 font-medium">Client: {pred.equipmentId?.clientId?.orgName || 'Unknown'} | SN: {pred.equipmentId?.serialNumber}</div>
+            {predictions.length > 0 && (() => {
+                const critical = predictions.filter(p => p.riskTier === 'critical').length;
+                const high = predictions.filter(p => p.riskTier === 'high').length;
+                const moderate = predictions.filter(p => p.riskTier === 'moderate').length;
+                return (
+                    <div style={{
+                        background: 'white',
+                        border: '1px solid #e2e8f0',
+                        borderLeft: '4px solid #E8192C',
+                        borderRadius: '12px',
+                        marginBottom: '24px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(13,27,62,0.06)'
+                    }}>
+                        {/* Widget Header */}
+                        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'linear-gradient(135deg, #fff0f1 0%, #ffe4e6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(232,25,44,0.15)' }}>
+                                    <HiOutlineLightningBolt style={{ fontSize: '20px', color: '#E8192C' }} />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '15px', fontWeight: '800', color: '#0D1B3E', marginBottom: '4px', letterSpacing: '-0.2px' }}>
+                                        AI Predictive Maintenance Intelligence
+                                    </h2>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                        {critical > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '20px', padding: '2px 10px' }}>🔴 {critical} Critical</span>}
+                                        {high > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#D97706', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '20px', padding: '2px 10px' }}>🟡 {high} High</span>}
+                                        {moderate > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#1A4DB4', background: '#EBF0FA', border: '1px solid #BFDBFE', borderRadius: '20px', padding: '2px 10px' }}>🔵 {moderate} Moderate</span>}
+                                        <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>• MedQuad AI v2.0</span>
                                     </div>
-                                    <div className="flex flex-col items-end">
-                                        <div className="text-xs font-bold px-2 py-1 rounded bg-red-100 text-red-700">
-                                            {Math.round(pred.confidence * 100)}% Confidence
+                                </div>
+                            </div>
+                            <button
+                                onClick={fetchDashboardData}
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer', transition: 'all 150ms ease' }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                            >
+                                <HiOutlineRefresh style={{ fontSize: '14px' }} /> Re-run Analysis
+                            </button>
+                        </div>
+
+                        {/* Prediction Cards Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '16px', padding: '20px 24px' }}>
+                            {predictions.map(pred => {
+                                const tier = pred.riskTier || (pred.confidence >= 0.75 ? 'critical' : pred.confidence >= 0.55 ? 'high' : 'moderate');
+                                const tierStyles = {
+                                    critical: { border: '1px solid #FECACA', bg: '#FFFAFA', badge: '#DC2626', badgeBg: '#FEF2F2', label: 'CRITICAL', dot: '#EF4444' },
+                                    high:     { border: '1px solid #FDE68A', bg: '#FFFDF5', badge: '#D97706', badgeBg: '#FFFBEB', label: 'HIGH RISK', dot: '#F59E0B' },
+                                    moderate: { border: '1px solid #BFDBFE', bg: '#F8FAFF', badge: '#1A4DB4', badgeBg: '#EBF0FA', label: 'MODERATE', dot: '#3B82F6' },
+                                };
+                                const s = tierStyles[tier];
+                                const confidencePct = Math.round(pred.confidence * 100);
+                                const daysLeft = pred.predictedFailureDate
+                                    ? Math.max(0, Math.round((new Date(pred.predictedFailureDate) - Date.now()) / (1000 * 60 * 60 * 24)))
+                                    : null;
+                                const factors = pred.riskFactors?.length > 0 ? pred.riskFactors : null;
+
+                                return (
+                                    <div key={pred._id} style={{ background: s.bg, border: s.border, borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {/* Card Header */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: s.dot, flexShrink: 0, boxShadow: `0 0 6px ${s.dot}` }}></span>
+                                                    <span style={{ fontSize: '10px', fontWeight: '800', color: s.badge, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{s.label}</span>
+                                                </div>
+                                                <div style={{ fontWeight: '700', fontSize: '14px', color: '#0D1B3E', lineHeight: '1.3', marginBottom: '2px' }}>
+                                                    {pred.equipmentId?.name}
+                                                </div>
+                                                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>
+                                                    {pred.equipmentId?.clientId?.orgName || 'Unassigned'} · SN: {pred.equipmentId?.serialNumber}
+                                                </div>
+                                            </div>
+                                            {/* Confidence Meter */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                                                <div style={{ fontSize: '20px', fontWeight: '900', color: s.badge, lineHeight: '1' }}>{confidencePct}%</div>
+                                                <div style={{ fontSize: '9px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Confidence</div>
+                                                <div style={{ width: '60px', height: '4px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                                    <div style={{ height: '100%', width: `${confidencePct}%`, background: s.dot, borderRadius: '4px', transition: 'width 600ms ease' }} />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Failure Type + Countdown */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', padding: '8px 12px', background: 'rgba(255,255,255,0.7)', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                                            <div>
+                                                <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Failure Type</div>
+                                                <div style={{ fontSize: '12px', fontWeight: '700', color: '#334155' }}>{pred.failureType || 'Component Degradation'}</div>
+                                            </div>
+                                            {daysLeft !== null && (
+                                                <div style={{ textAlign: 'right' }}>
+                                                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Est. Failure</div>
+                                                    <div style={{ fontSize: '12px', fontWeight: '700', color: daysLeft < 30 ? '#DC2626' : '#334155' }}>
+                                                        {daysLeft === 0 ? 'Imminent' : `${daysLeft} days`}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Risk Factors */}
+                                        {factors && (
+                                            <div>
+                                                <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '6px' }}>Risk Factors Detected</div>
+                                                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    {factors.slice(0, 3).map((f, i) => (
+                                                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '7px', fontSize: '12px', color: '#475569', fontWeight: '500', lineHeight: '1.4' }}>
+                                                            <span style={{ color: s.dot, fontWeight: '900', flexShrink: 0, marginTop: '1px' }}>▸</span>
+                                                            {f}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+
+                                        {/* Recommendation */}
+                                        {!factors && pred.recommendations && (
+                                            <div style={{ fontSize: '12px', color: '#475569', lineHeight: '1.6', padding: '8px 10px', background: 'rgba(255,255,255,0.6)', borderRadius: '7px', border: '1px solid rgba(0,0,0,0.04)' }}>
+                                                <span style={{ fontWeight: '700', color: '#334155' }}>Recommendation: </span>{pred.recommendations}
+                                            </div>
+                                        )}
+
+                                        {/* Actions */}
+                                        <div style={{ display: 'flex', gap: '8px', marginTop: '2px' }}>
+                                            <button
+                                                style={{ flex: 1, padding: '9px 16px', background: 'linear-gradient(135deg, #E8192C 0%, #C0141F 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(232,25,44,0.30)', transition: 'all 200ms ease' }}
+                                                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+                                                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                                                onClick={async () => {
+                                                    try {
+                                                        await predictionsAPI.createTicket(pred._id);
+                                                        toast.success('Preventive maintenance ticket created!');
+                                                        fetchDashboardData();
+                                                    } catch (err) { toast.error('Failed to create ticket'); }
+                                                }}
+                                            >
+                                                Create Preventive Ticket
+                                            </button>
+                                            <button
+                                                style={{ padding: '9px 14px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 150ms ease' }}
+                                                onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#334155'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#64748b'; }}
+                                                onClick={async () => {
+                                                    try {
+                                                        await predictionsAPI.acknowledge(pred._id);
+                                                        toast.success('Alert dismissed');
+                                                        fetchDashboardData();
+                                                    } catch (err) { toast.error('Failed to dismiss'); }
+                                                }}
+                                            >
+                                                Dismiss
+                                            </button>
+                                        </div>
+                                    </div>
+                {/* AI Predictive Maintenance Widget */}
+                {predictions.length > 0 && (() => {
+                    const critical = predictions.filter(p => p.riskTier === 'critical').length;
+                    const high = predictions.filter(p => p.riskTier === 'high').length;
+                    const moderate = predictions.filter(p => p.riskTier === 'moderate').length;
+                    return (
+                        <div style={{
+                            background: 'white',
+                            border: '1px solid #e2e8f0',
+                            borderLeft: '4px solid #E8192C',
+                            borderRadius: '12px',
+                            marginBottom: '24px',
+                            overflow: 'hidden',
+                            boxShadow: '0 2px 8px rgba(13,27,62,0.06)'
+                        }}>
+                            {/* Widget Header */}
+                            <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'linear-gradient(135deg, #fff0f1 0%, #ffe4e6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(232,25,44,0.15)' }}>
+                                        <HiOutlineLightningBolt style={{ fontSize: '20px', color: '#E8192C' }} />
+                                    </div>
+                                    <div>
+                                        <h2 style={{ fontSize: '15px', fontWeight: '800', color: '#0D1B3E', marginBottom: '4px', letterSpacing: '-0.2px' }}>
+                                            AI Predictive Maintenance Intelligence
+                                        </h2>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                            {critical > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '20px', padding: '2px 10px' }}>🔴 {critical} Critical</span>}
+                                            {high > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#D97706', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '20px', padding: '2px 10px' }}>🟡 {high} High</span>}
+                                            {moderate > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#1A4DB4', background: '#EBF0FA', border: '1px solid #BFDBFE', borderRadius: '20px', padding: '2px 10px' }}>🔵 {moderate} Moderate</span>}
+                                            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>• MedQuad AI v2.0</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-sm text-slate-600 mb-4">
-                                    <strong>Predicted Failure:</strong> {new Date(pred.predictedFailureDate).toLocaleDateString()}<br/>
-                                    <strong>Recommendation:</strong> {pred.recommendations}
-                                </div>
-                                <div className="flex gap-2">
-                                    <button 
-                                        className="btn btn-primary btn-sm flex-1 bg-red-500 hover:bg-red-600 border-none"
-                                        onClick={async () => {
-                                            try {
-                                                await predictionsAPI.createTicket(pred._id);
-                                                toast.success('Preventive ticket created!');
-                                                fetchDashboardData();
-                                            } catch (err) {
-                                                toast.error('Failed to create ticket');
-                                            }
-                                        }}
-                                    >
-                                        Create Preventive Ticket
-                                    </button>
-                                    <button 
-                                        className="btn btn-outline btn-sm"
-                                        onClick={async () => {
-                                            try {
-                                                await predictionsAPI.acknowledge(pred._id);
-                                                toast.success('Alert dismissed');
-                                                fetchDashboardData();
-                                            } catch (err) {
-                                                toast.error('Failed to dismiss');
-                                            }
-                                        }}
-                                    >
-                                        Dismiss
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={fetchDashboardData}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer', transition: 'all 150ms ease' }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                >
+                                    <HiOutlineRefresh style={{ fontSize: '14px' }} /> Re-run Analysis
+                                </button>
                             </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+
+                            {/* Prediction Cards Grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '16px', padding: '20px 24px' }}>
+                                {predictions.map(pred => {
+                                    const tier = pred.riskTier || (pred.confidence >= 0.75 ? 'critical' : pred.confidence >= 0.55 ? 'high' : 'moderate');
+                                    const tierStyles = {
+                                        critical: { border: '1px solid #FECACA', bg: '#FFFAFA', badge: '#DC2626', badgeBg: '#FEF2F2', label: 'CRITICAL', dot: '#EF4444' },
+                                        high:     { border: '1px solid #FDE68A', bg: '#FFFDF5', badge: '#D97706', badgeBg: '#FFFBEB', label: 'HIGH RISK', dot: '#F59E0B' },
+                                        moderate: { border: '1px solid #BFDBFE', bg: '#F8FAFF', badge: '#1A4DB4', badgeBg: '#EBF0FA', label: 'MODERATE', dot: '#3B82F6' },
+                                    };
+                                    const s = tierStyles[tier];
+                                    const confidencePct = Math.round(pred.confidence * 100);
+                                    const daysLeft = pred.predictedFailureDate
+                                        ? Math.max(0, Math.round((new Date(pred.predictedFailureDate) - Date.now()) / (1000 * 60 * 60 * 24)))
+                                        : null;
+                                    const factors = pred.riskFactors?.length > 0 ? pred.riskFactors : null;
+
+                                    return (
+                                        <div key={pred._id} style={{ background: s.bg, border: s.border, borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {/* Card Header */}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: s.dot, flexShrink: 0, boxShadow: `0 0 6px ${s.dot}` }}></span>
+                                                        <span style={{ fontSize: '10px', fontWeight: '800', color: s.badge, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{s.label}</span>
+                                                    </div>
+                                                    <div style={{ fontWeight: '700', fontSize: '14px', color: '#0D1B3E', lineHeight: '1.3', marginBottom: '2px' }}>
+                                                        {pred.equipmentId?.name}
+                                                    </div>
+                                                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>
+                                                        {pred.equipmentId?.clientId?.orgName || 'Unassigned'} · SN: {pred.equipmentId?.serialNumber}
+                                                    </div>
+                                                </div>
+                                                {/* Confidence Meter */}
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                                                    <div style={{ fontSize: '20px', fontWeight: '900', color: s.badge, lineHeight: '1' }}>{confidencePct}%</div>
+                                                    <div style={{ fontSize: '9px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Confidence</div>
+                                                    <div style={{ width: '60px', height: '4px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                                        <div style={{ height: '100%', width: `${confidencePct}%`, background: s.dot, borderRadius: '4px', transition: 'width 600ms ease' }} />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Failure Type + Countdown */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', padding: '8px 12px', background: 'rgba(255,255,255,0.7)', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                                                <div>
+                                                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Failure Type</div>
+                                                    <div style={{ fontSize: '12px', fontWeight: '700', color: '#334155' }}>{pred.failureType || 'Component Degradation'}</div>
+                                                </div>
+                                                {daysLeft !== null && (
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Est. Failure</div>
+                                                        <div style={{ fontSize: '12px', fontWeight: '700', color: daysLeft < 30 ? '#DC2626' : '#334155' }}>
+                                                            {daysLeft === 0 ? 'Imminent' : `${daysLeft} days`}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Risk Factors */}
+                                            {factors && (
+                                                <div>
+                                                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '6px' }}>Risk Factors Detected</div>
+                                                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                        {factors.slice(0, 3).map((f, i) => (
+                                                            <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '7px', fontSize: '12px', color: '#475569', fontWeight: '500', lineHeight: '1.4' }}>
+                                                                <span style={{ color: s.dot, fontWeight: '900', flexShrink: 0, marginTop: '1px' }}>▸</span>
+                                                                {f}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* Recommendation */}
+                                            {!factors && pred.recommendations && (
+                                                <div style={{ fontSize: '12px', color: '#475569', lineHeight: '1.6', padding: '8px 10px', background: 'rgba(255,255,255,0.6)', borderRadius: '7px', border: '1px solid rgba(0,0,0,0.04)' }}>
+                                                    <span style={{ fontWeight: '700', color: '#334155' }}>Recommendation: </span>{pred.recommendations}
+                                                </div>
+                                            )}
+
+                                            {/* Actions */}
+                                            <div style={{ display: 'flex', gap: '8px', marginTop: '2px' }}>
+                                                <button
+                                                    style={{ flex: 1, padding: '9px 16px', background: 'linear-gradient(135deg, #E8192C 0%, #C0141F 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(232,25,44,0.30)', transition: 'all 200ms ease' }}
+                                                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+                                                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                                                    onClick={async () => {
+                                                        try {
+                                                            await predictionsAPI.createTicket(pred._id);
+                                                            toast.success('Preventive maintenance ticket created!');
+                                                            fetchDashboardData();
+                                                        } catch (err) { toast.error('Failed to create ticket'); }
+                                                    }}
+                                                >
+                                                    Create Preventive Ticket
+                                                </button>
+                                                <button
+                                                    style={{ padding: '9px 14px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 150ms ease' }}
+                                                    onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#334155'; }}
+                                                    onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#64748b'; }}
+                                                    onClick={async () => {
+                                                        try {
+                                                            await predictionsAPI.acknowledge(pred._id);
+                                                            toast.success('Alert dismissed');
+                                                            fetchDashboardData();
+                                                        } catch (err) { toast.error('Failed to dismiss'); }
+                                                    }}
+                                                >
+                                                    Dismiss
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
+                })()}
 
             {/* Charts */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
