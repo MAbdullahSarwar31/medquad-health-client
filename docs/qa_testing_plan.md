@@ -40,9 +40,9 @@ Now that the foundational schema mismatch bugs are fixed, here are the master te
 
 | Test ID | Scenario | Steps to Execute | Expected Result | Pass/Fail |
 |---|---|---|---|---|
-| `AI-01` | Nightly Cron Trigger | Open terminal running the Node backend. Check logs at exactly 2:00 AM (or change the cron time to 1 min from now in `server.js`). | Console logs `[Cron] Triggering nightly predictive maintenance analysis...` | [ ] |
-| `AI-02` | High Usage Spike Alert | Manually update an equipment's `totalUsageHours` in MongoDB to a massive number (e.g., 9000). Wait for prediction trigger. | AI Widget on Admin Dashboard displays a "Critical Risk" alert with >85% confidence score. | [ ] |
-| `AI-03` | Preventive Ticket Generation | On the AI Dashboard Widget, click "Create Preventive Ticket" on an active alert. | A new ticket is automatically generated with priority "High" and pre-filled AI recommendations in the description. | [ ] |
+| `AI-01` | Nightly Cron Trigger | Open terminal running the Node backend. Check logs at exactly 2:00 AM (or change the cron time to 1 min from now in `server.js`). | Console logs `[Cron] Triggering nightly predictive maintenance analysis...` | [x] PASS |
+| `AI-02` | High Usage Spike Alert | Manually update an equipment's `totalUsageHours` in MongoDB to a massive number (e.g., 9000). Wait for prediction trigger. | AI Widget on Admin Dashboard displays a "Critical Risk" alert with >85% confidence score. | [x] PASS |
+| `AI-03` | Preventive Ticket Generation | On the AI Dashboard Widget, click "Create Preventive Ticket" on an active alert. | A new ticket is automatically generated with priority "High" and pre-filled AI recommendations in the description. | [x] PASS |
 
 ### Test Suite C: Expense Claims & Financials
 
