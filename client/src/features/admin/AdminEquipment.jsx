@@ -186,20 +186,18 @@ const AdminEquipment = () => {
     // Curated professional medical equipment photos — 8 categories fully covered
     const EQUIPMENT_IMAGES = {
         'MRI': [
-            'https://images.unsplash.com/photo-1576671081837-49000212a370?q=80&w=600&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=600&auto=format&fit=crop',
+            '/Vida 3T.jpg',
+            '/SIGNA 3T.jpeg',
         ],
         'CT': [
-            'https://images.unsplash.com/photo-1530026405186-ed1f139313f3?q=80&w=600&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=600&auto=format&fit=crop',
+            '/CT_GE20Optima20CT660.jpg',
         ],
         'X-Ray': [
-            'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=600&auto=format&fit=crop',
+            '/Ysio X-Ray.jpg',
         ],
         'Ultrasound': [
-            'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?q=80&w=600&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1638202993928-7267aad84c31?q=80&w=600&auto=format&fit=crop',
+            '/EPIQ Ultrasound.jpg',
+            '/Vivid E95.jpg',
         ],
         'ECG': [
             'https://images.unsplash.com/photo-1628595351029-c2bf17511435?q=80&w=600&auto=format&fit=crop',
@@ -211,6 +209,7 @@ const AdminEquipment = () => {
             'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=600&auto=format&fit=crop',
         ],
         'Other': [
+            '/Innova Cath.jpg',
             'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=600&auto=format&fit=crop',
         ],
     };
