@@ -57,7 +57,8 @@
 .pub-nav-links {
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 8px;
     flex: 1;
 }
 
@@ -404,7 +405,7 @@
    PUBLIC PAGE — SHARED SECTION STYLES
    ============================================================ */
 .pub-section {
-    padding: 112px 32px;
+    padding: 112px 0;
 }
 
 .pub-section--gray {
@@ -417,8 +418,9 @@
 }
 
 .pub-container {
-    max-width: 1180px;
+    max-width: 1240px;
     margin: 0 auto;
+    padding: 0 32px;
 }
 
 .pub-section-tag {

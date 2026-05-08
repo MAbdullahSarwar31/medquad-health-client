@@ -13,7 +13,7 @@ router.use(protect);
 
 router.route('/')
     .get(requireRole('admin', 'employee'), getExpenses)
-    .post(requireRole('employee'), createExpense);
+    .post(requireRole('admin', 'employee'), createExpense);
 
 router.route('/:id')
     .get(requireRole('admin', 'employee'), getExpenseById);

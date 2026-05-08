@@ -41,7 +41,8 @@
 }
 
 .home-hero-content {
-    padding: clamp(48px, 8vh, 80px) clamp(16px, 4vw, 32px) clamp(130px, 17vh, 165px);
+    padding-top: clamp(48px, 8vh, 80px);
+    padding-bottom: clamp(130px, 17vh, 165px);
     animation: fadeSlideUp 0.7s ease both;
     position: relative;
     z-index: 2;
@@ -121,7 +122,8 @@
 
 .home-stats-inner {
     display: flex;
-    padding: 28px 32px;
+    padding-top: 28px;
+    padding-bottom: 28px;
     gap: 48px;
     flex-wrap: wrap;
 }

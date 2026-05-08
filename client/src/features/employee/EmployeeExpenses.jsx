@@ -216,12 +216,20 @@ const EmployeeExpenses = () => {
                 exchangeRate: parseFloat(form.exchangeRate),
                 ticketId: form.ticketId || undefined,
             });
-            toast.success('Expense claim submitted!');
+            toast.success('Expense claim submitted successfully!');
             setShowForm(false);
             setForm(EMPTY_FORM);
             fetchClaims();
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to submit claim.');
+            const serverMsg = err.response?.data?.message;
+            const statusCode = err.response?.status;
+            if (statusCode === 403) {
+                toast.error('Access denied. Your account does not have the Employee role. Contact your administrator.');
+            } else if (statusCode === 401) {
+                toast.error('Session expired. Please log in again.');
+            } else {
+                toast.error(serverMsg || 'Failed to submit claim. Please try again.');
+            }
         } finally {
             setSubmitting(false);
         }

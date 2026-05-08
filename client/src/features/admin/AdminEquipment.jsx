@@ -265,9 +265,13 @@ const AdminEquipment = () => {
                             >
                                 <option value="">All Categories</option>
                                 <option value="MRI">MRI</option>
-                                <option value="CT Scanner">CT Scanner</option>
-                                <option value="X-ray">X-ray</option>
+                                <option value="CT">CT Scanner</option>
+                                <option value="X-Ray">X-Ray</option>
                                 <option value="Ultrasound">Ultrasound</option>
+                                <option value="ECG">ECG</option>
+                                <option value="Ventilator">Ventilator</option>
+                                <option value="Monitor">Monitor</option>
+                                <option value="Other">Other</option>
                             </select>
                         </div>
                         <div className="relative">
@@ -279,8 +283,9 @@ const AdminEquipment = () => {
                             >
                                 <option value="">All Statuses</option>
                                 <option value="operational">Operational</option>
-                                <option value="under maintenance">Under Maint.</option>
-                                <option value="out of service">Out of Service</option>
+                                <option value="maintenance">Under Maint.</option>
+                                <option value="down">Out of Service / Down</option>
+                                <option value="decommissioned">Decommissioned</option>
                             </select>
                         </div>
                     </div>
@@ -435,9 +440,13 @@ const AdminEquipment = () => {
                                         <select required value={newDevice.category} onChange={e => setNewDevice({ ...newDevice, category: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none appearance-none">
                                             <option value="">Select Category...</option>
                                             <option value="MRI">MRI</option>
-                                            <option value="CT Scanner">CT Scanner</option>
-                                            <option value="X-ray">X-ray</option>
+                                            <option value="CT">CT Scanner</option>
+                                            <option value="X-Ray">X-Ray</option>
                                             <option value="Ultrasound">Ultrasound</option>
+                                            <option value="ECG">ECG / Cardiology</option>
+                                            <option value="Ventilator">Ventilator</option>
+                                            <option value="Monitor">Patient Monitor</option>
+                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
                                     <div className="space-y-1.5">
