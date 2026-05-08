@@ -186,18 +186,18 @@ const AdminEquipment = () => {
     // Curated professional medical equipment photos — 8 categories fully covered
     const EQUIPMENT_IMAGES = {
         'MRI': [
-            '/Vida 3T.jpg',
-            '/SIGNA 3T.jpeg',
+            '/Vida_3T.jpg',
+            '/SIGNA_3T.jpeg',
         ],
         'CT': [
-            '/CT_GE20Optima20CT660.jpg',
+            '/CT_Optima.jpg',
         ],
         'X-Ray': [
-            '/Ysio X-Ray.jpg',
+            '/Ysio_X-Ray.jpg',
         ],
         'Ultrasound': [
-            '/EPIQ Ultrasound.jpg',
-            '/Vivid E95.jpg',
+            '/EPIQ_Ultrasound.jpg',
+            '/Vivid_E95.jpg',
         ],
         'ECG': [
             'https://images.unsplash.com/photo-1628595351029-c2bf17511435?q=80&w=600&auto=format&fit=crop',
@@ -209,7 +209,7 @@ const AdminEquipment = () => {
             'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=600&auto=format&fit=crop',
         ],
         'Other': [
-            '/Innova Cath.jpg',
+            '/Innova_Cath.jpg',
             'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=600&auto=format&fit=crop',
         ],
     };
