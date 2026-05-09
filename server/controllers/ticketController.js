@@ -148,12 +148,34 @@ const createTicket = async (req, res, next) => {
             .populate('equipmentId', 'name model category')
             .populate('createdBy', 'name email');
 
-        // Emit real-time update
+        // --- NOTIFICATIONS ---
         const io = req.app.get('io');
-        if (io) {
-            io.to(`room:admin`).emit('ticketCreated', populated);
-            if (populated.clientId) {
-                io.to(`room:${populated.clientId._id.toString()}`).emit('ticketCreated', populated);
+        const adminIds = await getAdminIds();
+        
+        await notify({
+            recipientId: adminIds,
+            type: 'ticket_created',
+            title: 'New Service Ticket',
+            message: `A new ticket has been created for ${populated.equipmentId?.name || 'Equipment'}.`,
+            link: '/admin/tickets',
+            metadata: { ticketId: populated._id },
+            sendEmail: true,
+            io
+        });
+
+        if (populated.clientId) {
+            const clientUsers = await User.find({ clientId: populated.clientId._id, isActive: { $ne: false } }).select('_id').lean();
+            if (clientUsers.length > 0) {
+                await notify({
+                    recipientId: clientUsers.map(u => u._id),
+                    type: 'ticket_created',
+                    title: 'Ticket Received',
+                    message: `We have received your ticket regarding ${populated.equipmentId?.name || 'Equipment'}.`,
+                    link: '/client/dashboard',
+                    metadata: { ticketId: populated._id },
+                    sendEmail: true,
+                    io
+                });
             }
         }
 
@@ -212,16 +234,48 @@ const updateTicket = async (req, res, next) => {
             .populate('equipmentId', 'name model category')
             .populate('assignedEmployee', 'name email');
 
-        // Emit real-time update
+        // --- NOTIFICATIONS ---
         const io = req.app.get('io');
-        if (io) {
-            io.to(`room:admin`).emit('ticketUpdated', updated);
-            if (updated.clientId) {
-                io.to(`room:${updated.clientId._id.toString()}`).emit('ticketUpdated', updated);
+        const adminIds = await getAdminIds();
+        
+        await notify({
+            recipientId: adminIds,
+            type: 'ticket_updated',
+            title: 'Ticket Updated',
+            message: `Ticket for ${updated.equipmentId?.name || 'Equipment'} was updated to ${updated.status}.`,
+            link: '/admin/tickets',
+            metadata: { ticketId: updated._id },
+            sendEmail: false,
+            io
+        });
+
+        if (updated.clientId) {
+            const clientUsers = await User.find({ clientId: updated.clientId._id, isActive: { $ne: false } }).select('_id').lean();
+            if (clientUsers.length > 0) {
+                await notify({
+                    recipientId: clientUsers.map(u => u._id),
+                    type: updated.status === 'resolved' ? 'ticket_resolved' : 'ticket_updated',
+                    title: updated.status === 'resolved' ? 'Ticket Resolved' : 'Ticket Updated',
+                    message: `Your ticket for ${updated.equipmentId?.name || 'Equipment'} is now ${updated.status}.`,
+                    link: '/client/dashboard',
+                    metadata: { ticketId: updated._id },
+                    sendEmail: true,
+                    io
+                });
             }
-            if (updated.assignedEmployee) {
-                io.to(`room:${updated.assignedEmployee._id.toString()}`).emit('ticketUpdated', updated);
-            }
+        }
+
+        if (updated.assignedEmployee && status) {
+            await notify({
+                recipientId: updated.assignedEmployee._id,
+                type: 'ticket_assigned',
+                title: 'Ticket Update',
+                message: `Ticket for ${updated.equipmentId?.name || 'Equipment'} status is ${updated.status}.`,
+                link: '/employee/tickets',
+                metadata: { ticketId: updated._id },
+                sendEmail: true,
+                io
+            });
         }
 
         res.status(200).json({ success: true, data: { ticket: updated } });
@@ -259,16 +313,48 @@ const addTicketUpdate = async (req, res, next) => {
         const updated = await ServiceTicket.findById(ticket._id)
             .populate('updates.updatedBy', 'name role');
 
-        // Emit real-time update
+        // --- NOTIFICATIONS ---
         const io = req.app.get('io');
-        if (io) {
-            io.to(`room:admin`).emit('ticketUpdated', updated);
-            if (updated.clientId) {
-                io.to(`room:${updated.clientId.toString()}`).emit('ticketUpdated', updated);
+        const adminIds = await getAdminIds();
+
+        await notify({
+            recipientId: adminIds,
+            type: 'ticket_updated',
+            title: 'New Ticket Note',
+            message: `A note was added to a ticket: "${message.substring(0, 40)}..."`,
+            link: '/admin/tickets',
+            metadata: { ticketId: updated._id },
+            sendEmail: false,
+            io
+        });
+
+        if (updated.clientId) {
+            const clientUsers = await User.find({ clientId: updated.clientId, isActive: { $ne: false } }).select('_id').lean();
+            if (clientUsers.length > 0) {
+                await notify({
+                    recipientId: clientUsers.map(u => u._id),
+                    type: 'ticket_updated',
+                    title: 'New Ticket Update',
+                    message: `MedQuad added a note to your ticket: "${message.substring(0, 40)}..."`,
+                    link: '/client/dashboard',
+                    metadata: { ticketId: updated._id },
+                    sendEmail: true,
+                    io
+                });
             }
-            if (updated.assignedEmployee) {
-                io.to(`room:${updated.assignedEmployee.toString()}`).emit('ticketUpdated', updated);
-            }
+        }
+
+        if (updated.assignedEmployee) {
+            await notify({
+                recipientId: updated.assignedEmployee,
+                type: 'ticket_updated',
+                title: 'Ticket Note Added',
+                message: `A note was added to your assigned ticket.`,
+                link: '/employee/tickets',
+                metadata: { ticketId: updated._id },
+                sendEmail: false,
+                io
+            });
         }
 
         res.status(200).json({ success: true, data: { ticket: updated } });

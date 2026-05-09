@@ -1,5 +1,6 @@
 const Invoice = require('../models/Invoice');
-
+const User = require('../models/User');
+const { notify, getAdminIds } = require('../services/notificationService');
 /**
  * @desc    Get invoices
  * @route   GET /api/v1/invoices
@@ -129,6 +130,24 @@ const createInvoice = async (req, res, next) => {
             message: 'Invoice created successfully',
             data: { invoice },
         });
+
+        // --- NOTIFICATIONS ---
+        if (invoice.status === 'sent' && invoice.clientId) {
+            const io = req.app.get('io');
+            const clientUsers = await User.find({ clientId: invoice.clientId, isActive: { $ne: false } }).select('_id').lean();
+            if (clientUsers.length > 0) {
+                await notify({
+                    recipientId: clientUsers.map(u => u._id),
+                    type: 'general',
+                    title: 'New Invoice Available',
+                    message: `A new invoice (${invoice.invoiceNumber || 'New'}) has been issued to your account.`,
+                    link: '/client/invoices',
+                    metadata: { invoiceId: invoice._id },
+                    sendEmail: true,
+                    io
+                });
+            }
+        }
     } catch (error) {
         next(error);
     }
@@ -163,6 +182,38 @@ const updateInvoiceStatus = async (req, res, next) => {
             message: `Invoice marked as ${status}`,
             data: { invoice },
         });
+
+        // --- NOTIFICATIONS ---
+        if (invoice.clientId && (status === 'sent' || status === 'paid' || status === 'overdue')) {
+            const io = req.app.get('io');
+            const clientUsers = await User.find({ clientId: invoice.clientId._id, isActive: { $ne: false } }).select('_id').lean();
+            if (clientUsers.length > 0) {
+                let title = 'Invoice Updated';
+                let message = `Your invoice status has been updated to ${status}.`;
+                
+                if (status === 'sent') {
+                    title = 'New Invoice Available';
+                    message = `A new invoice has been issued to your account.`;
+                } else if (status === 'paid') {
+                    title = 'Payment Received';
+                    message = `Thank you! Your payment has been received and the invoice is marked as paid.`;
+                } else if (status === 'overdue') {
+                    title = 'Invoice Overdue';
+                    message = `Friendly reminder: An invoice on your account is now overdue.`;
+                }
+
+                await notify({
+                    recipientId: clientUsers.map(u => u._id),
+                    type: 'general',
+                    title,
+                    message,
+                    link: '/client/invoices',
+                    metadata: { invoiceId: invoice._id },
+                    sendEmail: true,
+                    io
+                });
+            }
+        }
     } catch (error) {
         next(error);
     }
