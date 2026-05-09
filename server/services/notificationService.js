@@ -93,7 +93,8 @@ const notify = async ({
  * Convenience: Get all admin user IDs (for broadcasting to all admins)
  */
 const getAdminIds = async () => {
-    const admins = await User.find({ role: 'admin', isActive: true }).select('_id').lean();
+    // Some older user docs might not have isActive explicitly set to true.
+    const admins = await User.find({ role: 'admin', isActive: { $ne: false } }).select('_id').lean();
     return admins.map((a) => a._id);
 };
 

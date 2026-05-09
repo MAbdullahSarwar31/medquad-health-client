@@ -19,10 +19,17 @@ const getExpenses = async (req, res, next) => {
             .populate('reviewedBy', 'name')
             .sort('-createdAt');
 
+        const summary = {
+            pendingCount: claims.filter(c => c.status === 'pending').length,
+            approvedCount: claims.filter(c => c.status === 'approved').length,
+            rejectedCount: claims.filter(c => c.status === 'rejected').length,
+            totalApprovedPKR: claims.filter(c => c.status === 'approved').reduce((acc, c) => acc + (c.amountPKR || (c.amount * (c.exchangeRate || 1))), 0)
+        };
+
         res.status(200).json({
             success: true,
             count: claims.length,
-            data: { claims },
+            data: { claims, summary },
         });
     } catch (error) {
         next(error);
