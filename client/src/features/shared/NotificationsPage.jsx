@@ -112,11 +112,13 @@ export default function NotificationsPage() {
 
     return (
         <div className="np-wrapper">
-            {/* Page Header */}
-            <div className="np-header">
-                <div>
-                    <h1 className="np-title">Notification Center</h1>
-                    <p className="np-subtitle">{totalCount} total notifications</p>
+            {/* Page Header — matches all other portal pages */}
+            <div className="page-header-row">
+                <div className="page-header">
+                    <h1 className="page-header-title">
+                        Notification <span>Center</span>
+                    </h1>
+                    <p className="page-header-sub">{totalCount} total notifications across all modules</p>
                 </div>
                 <div className="np-header-actions">
                     {selected.size > 0 && (
