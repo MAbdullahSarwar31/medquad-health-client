@@ -13,7 +13,6 @@
     flex-direction: column;
     justify-content: center;
     position: relative;
-    overflow: hidden;
     padding-top: 72px;
 }
 
@@ -42,7 +41,7 @@
 
 .home-hero-content {
     padding-top: clamp(48px, 8vh, 80px);
-    padding-bottom: clamp(130px, 17vh, 165px);
+    padding-bottom: clamp(120px, 16vh, 160px);
     animation: fadeSlideUp 0.7s ease both;
     position: relative;
     z-index: 2;
