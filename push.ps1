@@ -1,5 +1,5 @@
-git config user.name "aizazahmed001"
-git config user.email "aizazahmed098@gmail.com"
+git config user.name "MAbdullahSarwar31"
+git config user.email "m.abdullah.sarwar31@gmail.com"
 git add .
-git commit -m "fix: inject notification logic into expenseController missing from batch script"
+git commit -m "feat: complete UI professionalization of Client Dashboard"
 git push

@@ -6,6 +6,7 @@ import {
     MdBuild, MdConfirmationNumber, MdCheckCircle,
     MdSchedule, MdArrowForward, MdReceipt, MdWarning
 } from 'react-icons/md';
+import './ClientDashboard.css';
 
 /* ── Shared status/priority helpers ── */
 const STATUS_COLORS = {
@@ -189,11 +190,11 @@ const ClientDashboard = () => {
                     <div key={i} className="stat-card">
                         <div className={`stat-icon ${card.iconClass}`}>{card.icon}</div>
                         <div className="stat-info">
-                            <div className={card.small ? '' : 'stat-value'} style={card.small ? { fontSize: 18, fontWeight: 800, color: 'var(--brand-navy)', marginBottom: 4 } : {}}>
+                            <div className="client-kpi-value" style={card.small ? { fontSize: 20, color: 'var(--brand-navy)' } : {}}>
                                 {card.value}
                             </div>
                             <div className="stat-label">{card.label}</div>
-                            <div className="stat-change" style={{ color: 'var(--gray-500)', fontWeight: 400 }}>{card.sub}</div>
+                            <div className="stat-change" style={{ color: 'var(--gray-500)', fontWeight: 500 }}>{card.sub}</div>
                         </div>
                     </div>
                 ))}
@@ -216,28 +217,28 @@ const ClientDashboard = () => {
 
                     {/* Health bar */}
                     {totalEquipment > 0 && (
-                        <div style={{ padding: '14px 20px 10px' }}>
-                            <div style={{ display: 'flex', borderRadius: 6, overflow: 'hidden', height: 8, marginBottom: 10 }}>
-                                {operationalCount  > 0 && <div style={{ background: '#22C55E', width: `${(operationalCount  / totalEquipment) * 100}%`, transition: 'width 600ms ease' }} />}
-                                {maintenanceCount  > 0 && <div style={{ background: '#F59E0B', width: `${(maintenanceCount  / totalEquipment) * 100}%`, transition: 'width 600ms ease' }} />}
-                                {outOfServiceCount > 0 && <div style={{ background: '#EF4444', width: `${(outOfServiceCount / totalEquipment) * 100}%`, transition: 'width 600ms ease' }} />}
+                        <div style={{ padding: '16px 20px 12px' }}>
+                            <div className="eq-health-bar-container">
+                                {operationalCount  > 0 && <div className="eq-health-segment" style={{ background: '#22C55E', width: `${(operationalCount  / totalEquipment) * 100}%` }} />}
+                                {maintenanceCount  > 0 && <div className="eq-health-segment" style={{ background: '#F59E0B', width: `${(maintenanceCount  / totalEquipment) * 100}%` }} />}
+                                {outOfServiceCount > 0 && <div className="eq-health-segment" style={{ background: '#EF4444', width: `${(outOfServiceCount / totalEquipment) * 100}%` }} />}
                             </div>
-                            <div style={{ display: 'flex', gap: 14, fontSize: 11, fontWeight: 600, flexWrap: 'wrap' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#166534' }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
-                                    {operationalCount} Operational
-                                </span>
+                            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+                                <div className="eq-legend-pill">
+                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E' }} />
+                                    <span style={{ color: '#166534' }}>{operationalCount} Operational</span>
+                                </div>
                                 {maintenanceCount > 0 && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#92400E' }}>
-                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B', display: 'inline-block' }} />
-                                        {maintenanceCount} Maintenance
-                                    </span>
+                                    <div className="eq-legend-pill">
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
+                                        <span style={{ color: '#92400E' }}>{maintenanceCount} Maintenance</span>
+                                    </div>
                                 )}
                                 {outOfServiceCount > 0 && (
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#991B1B' }}>
-                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444', display: 'inline-block' }} />
-                                        {outOfServiceCount} Down
-                                    </span>
+                                    <div className="eq-legend-pill">
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' }} />
+                                        <span style={{ color: '#991B1B' }}>{outOfServiceCount} Down</span>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -281,55 +282,69 @@ const ClientDashboard = () => {
             </div>
 
             {/* Ticket Status Board (Kanban) */}
-            <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-slate-800">Active Service Board</h2>
-                    <button onClick={() => navigate('/client/tickets')} className="text-sm font-semibold text-blue-600 hover:underline">
+            <div style={{ marginBottom: 32 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--brand-navy)', margin: 0 }}>Active Service Board</h2>
+                    <button onClick={() => navigate('/client/tickets')} className="btn btn-ghost btn-sm" style={{ fontWeight: 600 }}>
                         View All History →
                     </button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="service-board">
                     {/* Open Column */}
-                    <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200 flex flex-col h-[400px]">
-                        <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">
-                            <h3 className="font-bold text-slate-700 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span> Open
+                    <div className="kanban-column">
+                        <div className="kanban-header">
+                            <h3 className="kanban-title">
+                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} /> Open
                             </h3>
-                            <span className="bg-white text-xs font-bold px-2 py-0.5 rounded shadow-sm text-slate-600">{tickets.filter(t => t.status === 'open').length}</span>
+                            <span className="kanban-count">{tickets.filter(t => t.status === 'open').length}</span>
                         </div>
-                        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                            {tickets.filter(t => t.status === 'open').map(t => (
-                                <div key={t._id} onClick={() => navigate('/client/tickets')} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm cursor-pointer hover:border-red-300 transition-colors">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="font-mono text-xs font-bold text-slate-500">#{t.ticketNumber || t._id.slice(-6).toUpperCase()}</span>
+                        <div className="kanban-body">
+                            {tickets.filter(t => t.status === 'open').length === 0 ? (
+                                <div className="empty-state" style={{ background: 'transparent', padding: '20px 10px' }}>
+                                    <p style={{ margin: 0, fontSize: 13 }}>No open tickets</p>
+                                </div>
+                            ) : tickets.filter(t => t.status === 'open').map(t => (
+                                <div key={t._id} onClick={() => navigate('/client/tickets')} className="kanban-card">
+                                    <div className="kanban-card-accent" style={{ background: '#ef4444' }} />
+                                    <div className="kanban-card-top">
+                                        <span className="kanban-ticket-id">#{t.ticketNumber || t._id.slice(-6).toUpperCase()}</span>
                                         <PriorityBadge priority={t.priority} />
                                     </div>
-                                    <h4 className="font-semibold text-sm text-slate-800 mb-1">{t.equipmentId?.name}</h4>
-                                    <p className="text-xs text-slate-500 line-clamp-2">{t.description}</p>
+                                    <h4 className="kanban-ticket-title">{t.equipmentId?.name}</h4>
+                                    <p style={{ fontSize: 12, color: 'var(--gray-500)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
+                                        {t.description}
+                                    </p>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* In Progress Column */}
-                    <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200 flex flex-col h-[400px]">
-                        <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">
-                            <h3 className="font-bold text-slate-700 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-blue-500"></span> In Progress
+                    <div className="kanban-column">
+                        <div className="kanban-header">
+                            <h3 className="kanban-title">
+                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6' }} /> In Progress
                             </h3>
-                            <span className="bg-white text-xs font-bold px-2 py-0.5 rounded shadow-sm text-slate-600">{tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').length}</span>
+                            <span className="kanban-count">{tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').length}</span>
                         </div>
-                        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                            {tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').map(t => (
-                                <div key={t._id} onClick={() => navigate('/client/tickets')} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm cursor-pointer hover:border-blue-300 transition-colors">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="font-mono text-xs font-bold text-slate-500">#{t.ticketNumber || t._id.slice(-6).toUpperCase()}</span>
+                        <div className="kanban-body">
+                            {tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').length === 0 ? (
+                                <div className="empty-state" style={{ background: 'transparent', padding: '20px 10px' }}>
+                                    <p style={{ margin: 0, fontSize: 13 }}>No tickets in progress</p>
+                                </div>
+                            ) : tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').map(t => (
+                                <div key={t._id} onClick={() => navigate('/client/tickets')} className="kanban-card">
+                                    <div className="kanban-card-accent" style={{ background: '#3b82f6' }} />
+                                    <div className="kanban-card-top">
+                                        <span className="kanban-ticket-id">#{t.ticketNumber || t._id.slice(-6).toUpperCase()}</span>
                                         <PriorityBadge priority={t.priority} />
                                     </div>
-                                    <h4 className="font-semibold text-sm text-slate-800 mb-1">{t.equipmentId?.name}</h4>
-                                    <p className="text-xs text-slate-500 line-clamp-2">{t.description}</p>
-                                    <div className="mt-3 pt-2 border-t border-slate-50 text-xs font-medium text-blue-600 flex items-center gap-1">
-                                        Team is assigned and working
+                                    <h4 className="kanban-ticket-title">{t.equipmentId?.name}</h4>
+                                    <p style={{ fontSize: 12, color: 'var(--gray-500)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0, marginBottom: 8 }}>
+                                        {t.description}
+                                    </p>
+                                    <div style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', background: 'rgba(59,130,246,0.1)', padding: '4px 8px', borderRadius: 4, display: 'inline-block' }}>
+                                        Team Assigned
                                     </div>
                                 </div>
                             ))}
@@ -337,21 +352,30 @@ const ClientDashboard = () => {
                     </div>
 
                     {/* Resolved Column */}
-                    <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200 flex flex-col h-[400px]">
-                        <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-2">
-                            <h3 className="font-bold text-slate-700 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Resolved
+                    <div className="kanban-column">
+                        <div className="kanban-header">
+                            <h3 className="kanban-title">
+                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} /> Resolved
                             </h3>
-                            <span className="bg-white text-xs font-bold px-2 py-0.5 rounded shadow-sm text-slate-600">{tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length}</span>
+                            <span className="kanban-count">{tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length}</span>
                         </div>
-                        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                            {tickets.filter(t => t.status === 'resolved' || t.status === 'closed').slice(0,10).map(t => (
-                                <div key={t._id} onClick={() => navigate('/client/tickets')} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm cursor-pointer hover:border-emerald-300 transition-colors opacity-80 hover:opacity-100">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="font-mono text-xs font-bold text-slate-500">#{t.ticketNumber || t._id.slice(-6).toUpperCase()}</span>
-                                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">{new Date(t.updatedAt).toLocaleDateString()}</span>
+                        <div className="kanban-body">
+                            {tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length === 0 ? (
+                                <div className="empty-state" style={{ background: 'transparent', padding: '20px 10px' }}>
+                                    <p style={{ margin: 0, fontSize: 13 }}>No resolved tickets yet</p>
+                                </div>
+                            ) : tickets.filter(t => t.status === 'resolved' || t.status === 'closed').slice(0,10).map(t => (
+                                <div key={t._id} onClick={() => navigate('/client/tickets')} className="kanban-card" style={{ opacity: 0.85 }}>
+                                    <div className="kanban-card-accent" style={{ background: '#10b981' }} />
+                                    <div className="kanban-card-top">
+                                        <span className="kanban-ticket-id">#{t.ticketNumber || t._id.slice(-6).toUpperCase()}</span>
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: '#059669', background: '#d1fae5', padding: '2px 6px', borderRadius: 4 }}>
+                                            {new Date(t.updatedAt).toLocaleDateString()}
+                                        </span>
                                     </div>
-                                    <h4 className="font-semibold text-sm text-slate-800 mb-1 line-through decoration-slate-300 text-slate-600">{t.equipmentId?.name}</h4>
+                                    <h4 className="kanban-ticket-title" style={{ textDecoration: 'line-through', color: 'var(--gray-500)', margin: 0 }}>
+                                        {t.equipmentId?.name}
+                                    </h4>
                                 </div>
                             ))}
                         </div>
@@ -364,44 +388,15 @@ const ClientDashboard = () => {
                 <div className="card-header">
                     <h2 className="card-title">Quick Actions</h2>
                 </div>
-                <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+                <div className="quick-actions-grid">
                     {quickActions.map(action => (
-                        <button
-                            key={action.path}
-                            onClick={() => navigate(action.path)}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: 14,
-                                padding: '14px 16px',
-                                border: '1.5px solid var(--gray-200)',
-                                borderRadius: 12, background: 'none',
-                                cursor: 'pointer', textAlign: 'left',
-                                fontFamily: 'var(--font-family)',
-                                transition: 'all 200ms ease',
-                            }}
-                            onMouseEnter={e => {
-                                e.currentTarget.style.background = 'var(--gray-50)';
-                                e.currentTarget.style.borderColor = 'var(--gray-300)';
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 4px 14px rgba(13,27,62,0.08)';
-                            }}
-                            onMouseLeave={e => {
-                                e.currentTarget.style.background = 'none';
-                                e.currentTarget.style.borderColor = 'var(--gray-200)';
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
-                            }}
-                        >
-                            <div style={{
-                                width: 40, height: 40, background: action.color,
-                                color: 'white', borderRadius: 10,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: 20, flexShrink: 0,
-                            }}>
+                        <button key={action.path} onClick={() => navigate(action.path)} className="qa-btn">
+                            <div className="qa-icon-wrap" style={{ background: action.color }}>
                                 {action.icon}
                             </div>
-                            <div>
-                                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-dark)', margin: 0 }}>{action.label}</p>
-                                <p style={{ fontSize: 11, color: 'var(--gray-500)', margin: 0 }}>{action.sub}</p>
+                            <div className="qa-content">
+                                <h3 className="qa-title">{action.label}</h3>
+                                <p className="qa-sub">{action.sub}</p>
                             </div>
                         </button>
                     ))}
