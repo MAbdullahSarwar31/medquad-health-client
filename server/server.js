@@ -49,6 +49,14 @@ io.on('connection', (socket) => {
         console.log(`Socket ${socket.id} joined room ${room}`);
     });
 
+    // Join personal user room for targeted notifications
+    socket.on('joinUserRoom', (userId) => {
+        if (userId) {
+            socket.join(`room:user:${userId}`);
+            console.log(`Socket ${socket.id} joined personal room: room:user:${userId}`);
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log(`Client disconnected: ${socket.id}`);
     });
@@ -96,8 +104,9 @@ app.use('/api/v1/tickets', require('./routes/ticketRoutes'));
 app.use('/api/v1/inventory', require('./routes/inventoryRoutes'));
 app.use('/api/v1/expenses', require('./routes/expenseRoutes'));
 app.use('/api/v1/invoices', require('./routes/invoiceRoutes'));
-app.use('/api/v1/chat',    require('./routes/chatRoutes'));    // AI chatbot (public)
-app.use('/api/v1/predictions', require('./routes/predictionRoutes')); // AI Predictive Maintenance
+app.use('/api/v1/chat',          require('./routes/chatRoutes'));           // AI chatbot (public)
+app.use('/api/v1/predictions',   require('./routes/predictionRoutes'));    // AI Predictive Maintenance
+app.use('/api/v1/notifications', require('./routes/notificationRoutes')); // Notification Center
 
 
 // ---------------------

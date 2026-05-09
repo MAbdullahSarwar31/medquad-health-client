@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 import {
     MdDashboard, MdBuild, MdPeople, MdInventory,
     MdConfirmationNumber, MdBusiness, MdLogout,
@@ -148,11 +149,8 @@ export default function Layout({ children }) {
                     </div>
 
                     <div className="topbar-right">
-                        {/* Notifications */}
-                        <button className="topbar-icon-btn">
-                            <MdNotifications />
-                            <span className="topbar-notif-dot" />
-                        </button>
+                        {/* Live Notification Bell */}
+                        <NotificationBell user={user} />
 
                         {/* User menu */}
                         <div className="topbar-user">

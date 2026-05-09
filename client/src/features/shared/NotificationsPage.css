@@ -1,0 +1,329 @@
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATIONS PAGE — Premium Styles
+   ═══════════════════════════════════════════════════════════ */
+
+.np-wrapper {
+    padding: 32px;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+/* Header */
+.np-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.np-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 4px;
+}
+
+.np-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.np-header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.np-btn-secondary,
+.np-btn-danger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.np-btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.np-btn-secondary:hover {
+    background: #1a2744;
+    color: #fff;
+}
+
+.np-btn-danger {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.np-btn-danger:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Filter Tabs */
+.np-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    padding: 6px;
+    background: #f8fafc;
+    border-radius: 12px;
+    width: fit-content;
+    flex-wrap: wrap;
+}
+
+.np-tab {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.np-tab:hover { color: #1e293b; background: rgba(0,0,0,0.04); }
+
+.np-tab.active {
+    background: #fff;
+    color: #1a2744;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Notification List */
+.np-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Skeleton */
+.np-skeleton {
+    height: 88px;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e8edf4 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Empty State */
+.np-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    color: #94a3b8;
+    gap: 12px;
+    text-align: center;
+}
+
+.np-empty h3 { margin: 0; font-size: 18px; color: #475569; }
+.np-empty p  { margin: 0; font-size: 14px; }
+
+/* Notification Item */
+.np-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 14px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.np-item:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border-color: #e2e8f0;
+    transform: translateY(-1px);
+}
+
+.np-item.unread {
+    border-left: 4px solid #c0392b;
+    background: linear-gradient(90deg, rgba(192,57,43,0.03) 0%, #fff 100%);
+}
+
+.np-item.selected {
+    border-color: #6366f1;
+    background: rgba(99,102,241,0.03);
+}
+
+/* Unread Indicator */
+.np-unread-indicator {
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #c0392b;
+    box-shadow: 0 0 0 2px rgba(192,57,43,0.2);
+}
+
+/* Checkbox */
+.np-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #6366f1;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Icon */
+.np-item-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* Content */
+.np-item-content {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.np-item-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.np-item-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.np-item-time {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-left: auto;
+}
+
+.np-item-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+.np-item-msg {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Action Buttons */
+.np-item-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.np-item:hover .np-item-actions { opacity: 1; }
+
+.np-action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s ease;
+}
+
+.np-action-btn.read  { background: rgba(16,185,129,0.1); color: #10b981; }
+.np-action-btn.read:hover  { background: rgba(16,185,129,0.2); }
+.np-action-btn.delete { background: rgba(239,68,68,0.1); color: #ef4444; }
+.np-action-btn.delete:hover { background: rgba(239,68,68,0.2); }
+
+/* Pagination */
+.np-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.np-page-btn {
+    padding: 8px 20px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.np-page-btn:hover:not(:disabled) {
+    background: #1a2744;
+    border-color: #1a2744;
+    color: #fff;
+}
+
+.np-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.np-page-info {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .np-wrapper { padding: 20px 16px; }
+    .np-tabs { width: 100%; }
+    .np-item { flex-wrap: wrap; }
+    .np-unread-indicator { display: none; }
+}

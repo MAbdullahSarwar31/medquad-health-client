@@ -1,3 +1,4 @@
+const { notify, getAdminIds } = require('../services/notificationService');
 const Equipment = require('../models/Equipment');
 
 /**
@@ -99,6 +100,11 @@ const getEquipmentById = async (req, res, next) => {
 const createEquipment = async (req, res, next) => {
     try {
         const equipment = await Equipment.create(req.body);
+        // NOTIF: equipment_added
+        const io6 = req.app.get('io');
+        const adminIds6 = await getAdminIds();
+        await notify({ recipientId: adminIds6, type: 'equipment_added', title: 'New Equipment Added', message: `New equipment "${equipment.name}" (${equipment.category}) has been registered in the system.`, link: '/admin/equipment', buttonText: 'View Equipment', metadata: { equipmentId: equipment._id }, sendEmail: false, io: io6 });
+
         res.status(201).json({ success: true, data: { equipment } });
     } catch (error) {
         next(error);

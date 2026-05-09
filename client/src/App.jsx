@@ -44,6 +44,7 @@ import AdminInvoices from './features/admin/AdminInvoices';
 
 // Placeholder pages
 import ComingSoon from './features/shared/ComingSoon';
+import NotificationsPage from './features/shared/NotificationsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -137,6 +138,9 @@ export default function App() {
           <Route path="/client/equipment" element={<ProtectedLayout roles={['client', 'admin']}><ClientEquipment /></ProtectedLayout>} />
           <Route path="/client/tickets" element={<ProtectedLayout roles={['client', 'admin']}><ClientTickets /></ProtectedLayout>} />
           <Route path="/client/invoices" element={<ProtectedLayout roles={['client', 'admin']}><ClientInvoices /></ProtectedLayout>} />
+
+          {/* ══════════════ NOTIFICATIONS (all roles) ══════════════ */}
+          <Route path="/notifications" element={<ProtectedLayout roles={['admin','employee','client']}><NotificationsPage /></ProtectedLayout>} />
 
           {/* ══════════════ FALLBACK ══════════════ */}
           <Route path="/catalog" element={<PubPage><CatalogPage /></PubPage>} />

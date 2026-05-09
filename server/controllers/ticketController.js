@@ -1,6 +1,7 @@
 const ServiceTicket = require('../models/ServiceTicket');
 const User = require('../models/User');
 const { analyzeTicketDescription } = require('../services/ticketAIService');
+const { notify, getAdminIds } = require('../services/notificationService');
 
 /**
  * @desc    Get all tickets (filtered by role)

@@ -1,3 +1,4 @@
+const { notify, getAdminIds } = require('./notificationService');
 const Equipment = require('../models/Equipment');
 const MaintenancePrediction = require('../models/MaintenancePrediction');
 
@@ -159,7 +160,15 @@ const generatePredictions = async () => {
                 const failureType = getFailureTypeByCategory(eq.category);
                 const recommendations = buildRecommendation(eq.category, riskFactors, confidence);
 
-                await MaintenancePrediction.findOneAndUpdate(
+                // NOTIF: ai_critical_alert
+            if (confidence >= 0.75) {
+                try {
+                    const adminIds8 = await getAdminIds();
+                    await notify({ recipientId: adminIds8, type: 'ai_critical_alert', title: '🤖 AI Critical Risk Alert', message: `MedQuad AI v2.0 detected CRITICAL risk for "${eq.name}": ${getFailureTypeByCategory(eq.category)}. Confidence: ${Math.round(confidence * 100)}%. Estimated failure in ~${daysUntilFailure} days.`, link: '/admin', buttonText: 'View AI Dashboard', metadata: { equipmentId: eq._id, confidence, daysUntilFailure }, sendEmail: true });
+                } catch(e) { console.warn('[Predictions] Notify failed:', e.message); }
+            }
+
+            await MaintenancePrediction.findOneAndUpdate(
                     { equipmentId: eq._id, isAcknowledged: false },
                     {
                         equipmentId: eq._id,

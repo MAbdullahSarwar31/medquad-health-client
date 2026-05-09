@@ -1,3 +1,4 @@
+const { notify, getAdminIds } = require('../services/notificationService');
 const Inventory = require('../models/Inventory');
 
 /**
@@ -57,6 +58,13 @@ const getInventoryItem = async (req, res, next) => {
         if (!item) {
             return res.status(404).json({ success: false, message: 'Inventory item not found' });
         }
+        // NOTIF: inventory_low
+        if (item.quantityOnHand <= item.reorderThreshold) {
+            const io7 = req.app.get('io');
+            const adminIds7 = await getAdminIds();
+            await notify({ recipientId: adminIds7, type: 'inventory_low', title: '⚠️ Low Stock Alert', message: `"${item.partName}" (Part# ${item.partNumber}) is at or below reorder threshold. Current stock: ${item.quantityOnHand} units (threshold: ${item.reorderThreshold}).`, link: '/admin/inventory', buttonText: 'Manage Inventory', metadata: { inventoryId: item._id }, sendEmail: true, io: io7 });
+        }
+
         res.status(200).json({ success: true, data: { item } });
     } catch (error) {
         next(error);

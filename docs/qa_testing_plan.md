@@ -48,9 +48,9 @@ Now that the foundational schema mismatch bugs are fixed, here are the master te
 
 | Test ID | Scenario | Steps to Execute | Expected Result | Pass/Fail |
 |---|---|---|---|---|
-| `EXP-01` | Currency Conversion Logic | Login as Employee. Create an expense: Type="travel", Amount=100, Currency="USD", Exchange Rate=278. Submit. | Claim saves successfully. In the Admin view, the "PKR Equivalent" correctly shows 27,800. | [ ] |
-| `EXP-02` | Admin Rejection Workflow | Login as Admin. Go to Expense Claims. Find the pending claim, click "Reject", and add note "Missing receipt". | Employee dashboard updates status to "Rejected" in red font. Admin note is visible to employee. | [ ] |
-| `EXP-03` | PDF Receipt Generation | Login as Employee. Find an "Approved" claim. Click the "Print" button. | A fully styled, print-ready HTML/PDF receipt opens in a new tab with the MedQuad logo and dynamic claim data. | [ ] |
+| `EXP-01` | Currency Conversion Logic | Login as Employee. Create an expense: Type="travel", Amount=100, Currency="USD", Exchange Rate=278. Submit. | Claim saves successfully. In the Admin view, the "PKR Equivalent" correctly shows 27,800. | [x] PASS |
+| `EXP-02` | Admin Rejection Workflow | Login as Admin. Go to Expense Claims. Find the pending claim, click "Reject", and add note "Missing receipt". | Employee dashboard updates status to "Rejected" in red font. Admin note is visible to employee. | [x] PASS |
+| `EXP-03` | PDF Receipt Generation | Login as Employee. Find an "Approved" claim. Click the "Print" button. | A fully styled, print-ready HTML/PDF receipt opens in a new tab with the MedQuad logo and dynamic claim data. | [x] PASS |
 
 ### Test Suite D: Equipment Inventory Integrity
 
