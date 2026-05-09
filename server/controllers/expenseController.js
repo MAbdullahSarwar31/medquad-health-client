@@ -1,59 +1,28 @@
-const { notify, getAdminIds } = require('../services/notificationService');
 const ExpenseClaim = require('../models/ExpenseClaim');
+const { notify, getAdminIds } = require('../services/notificationService');
 
 /**
  * @desc    Get expense claims
  * @route   GET /api/v1/expenses
- * @access  Admin: all claims | Employee: own claims only
+ * @access  Private (Admin sees all, Employee sees own)
  */
 const getExpenses = async (req, res, next) => {
     try {
-        const { page = 1, limit = 20, status, type, employeeId } = req.query;
-        const query = {};
-
-        // Role-based filter
+        let query = {};
         if (req.user.role === 'employee') {
             query.employeeId = req.user._id;
-        } else if (employeeId) {
-            query.employeeId = employeeId;
         }
 
-        if (status) query.status = status;
-        if (type) query.type = type;
-
-        const total = await ExpenseClaim.countDocuments(query);
         const claims = await ExpenseClaim.find(query)
             .populate('employeeId', 'name email')
-            .populate('ticketId', 'ticketNumber description')
+            .populate('ticketId', 'ticketNumber')
             .populate('reviewedBy', 'name')
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(parseInt(limit));
-
-        // Summary stats (for admin dashboard cards)
-        const pendingCount = await ExpenseClaim.countDocuments({ ...(req.user.role === 'employee' ? { employeeId: req.user._id } : {}), status: 'pending' });
-        const approvedCount = await ExpenseClaim.countDocuments({ ...(req.user.role === 'employee' ? { employeeId: req.user._id } : {}), status: 'approved' });
-        const rejectedCount = await ExpenseClaim.countDocuments({ ...(req.user.role === 'employee' ? { employeeId: req.user._id } : {}), status: 'rejected' });
-
-        // Total approved amount in PKR
-        const approvedAgg = await ExpenseClaim.aggregate([
-            { $match: { ...(req.user.role === 'employee' ? { employeeId: req.user._id } : {}), status: 'approved' } },
-            { $group: { _id: null, totalPKR: { $sum: '$amountPKR' } } },
-        ]);
-        const totalApprovedPKR = approvedAgg[0]?.totalPKR || 0;
+            .sort('-createdAt');
 
         res.status(200).json({
             success: true,
-            data: {
-                claims,
-                summary: { pendingCount, approvedCount, rejectedCount, totalApprovedPKR },
-                pagination: {
-                    total,
-                    page: parseInt(page),
-                    pages: Math.ceil(total / limit),
-                    limit: parseInt(limit),
-                },
-            },
+            count: claims.length,
+            data: { claims },
         });
     } catch (error) {
         next(error);
@@ -61,22 +30,22 @@ const getExpenses = async (req, res, next) => {
 };
 
 /**
- * @desc    Get single expense claim by ID
+ * @desc    Get single expense claim
  * @route   GET /api/v1/expenses/:id
- * @access  Admin | Claim owner (employee)
+ * @access  Private
  */
 const getExpenseById = async (req, res, next) => {
     try {
         const claim = await ExpenseClaim.findById(req.params.id)
             .populate('employeeId', 'name email')
-            .populate('ticketId', 'ticketNumber description')
-            .populate('reviewedBy', 'name email');
+            .populate('ticketId', 'ticketNumber')
+            .populate('reviewedBy', 'name');
 
         if (!claim) {
             return res.status(404).json({ success: false, message: 'Expense claim not found' });
         }
 
-        // Employees can only view their own claims
+        // Make sure employee only accesses their own claim
         if (req.user.role === 'employee' && claim.employeeId._id.toString() !== req.user._id.toString()) {
             return res.status(403).json({ success: false, message: 'Access denied' });
         }
@@ -112,6 +81,21 @@ const createExpense = async (req, res, next) => {
             { path: 'employeeId', select: 'name email' },
             { path: 'ticketId', select: 'ticketNumber' },
         ]);
+
+        // --- NOTIFICATIONS ---
+        const io = req.app.get('io');
+        const adminIds = await getAdminIds();
+        await notify({
+            recipientId: adminIds,
+            type: 'expense_submitted',
+            title: 'New Expense Claim Submitted',
+            message: `An employee has submitted a new expense claim of ${populated.amount} ${populated.currency} (${populated.type}). Please review.`,
+            link: '/admin/expenses',
+            buttonText: 'Review Claim',
+            metadata: { expenseId: claim._id },
+            sendEmail: true,
+            io,
+        });
 
         res.status(201).json({
             success: true,
@@ -155,6 +139,23 @@ const updateExpenseStatus = async (req, res, next) => {
             { path: 'employeeId', select: 'name email' },
             { path: 'reviewedBy', select: 'name' },
         ]);
+
+        // --- NOTIFICATIONS ---
+        const io = req.app.get('io');
+        const isApproved = status === 'approved';
+        await notify({
+            recipientId: populated.employeeId._id,
+            type: isApproved ? 'expense_approved' : 'expense_rejected',
+            title: isApproved ? '🎉 Expense Claim Approved' : '❌ Expense Claim Rejected',
+            message: isApproved
+                ? `Your expense claim ${populated.claimNumber} for ${populated.amount?.toLocaleString()} ${populated.currency} has been approved.`
+                : `Your expense claim ${populated.claimNumber} was rejected. Admin note: ${adminNote || 'No note provided.'}`,
+            link: '/employee/expenses',
+            buttonText: 'View My Claims',
+            metadata: { expenseId: claim._id },
+            sendEmail: true,
+            io,
+        });
 
         res.status(200).json({
             success: true,
