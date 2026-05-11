@@ -9,8 +9,8 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import './NotificationBell.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://medquad-health-solutions-api.onrender.com/api/v1';
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://medquad-health-solutions-api.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 
 const TYPE_CONFIG = {
     ticket_created:   { icon: <FiFileText />,      color: '#3b82f6', label: 'New Ticket' },

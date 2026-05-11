@@ -85,6 +85,8 @@ const notify = async ({
         }
     } catch (error) {
         // Never crash the main request due to notification failure
+        const fs = require('fs');
+        fs.appendFileSync('notification_errors.log', `[${new Date().toISOString()}] Failed to send notification: ${error.message}\n${error.stack}\n`);
         console.error('[NotificationService] Failed to send notification:', error.message);
     }
 };

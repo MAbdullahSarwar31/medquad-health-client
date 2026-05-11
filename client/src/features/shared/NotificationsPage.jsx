@@ -8,7 +8,7 @@ import {
 import { MdDoneAll } from 'react-icons/md';
 import './NotificationsPage.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://medquad-health-solutions-api.onrender.com/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 const TYPE_CONFIG = {
     ticket_created:    { icon: <FiFileText />,      color: '#3b82f6', label: 'New Ticket' },
