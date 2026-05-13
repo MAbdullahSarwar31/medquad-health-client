@@ -6,6 +6,7 @@ import {
     MdBuild, MdConfirmationNumber, MdCheckCircle,
     MdSchedule, MdArrowForward, MdReceipt, MdWarning
 } from 'react-icons/md';
+import { FiCheckSquare } from 'react-icons/fi';
 import './ClientDashboard.css';
 
 /* ── Shared status/priority helpers ── */
@@ -166,7 +167,7 @@ const ClientDashboard = () => {
     ];
 
     return (
-        <div>
+        <div className="cd-root">
             {/* Page Header */}
             <div className="page-header">
                 <div className="page-header-row">
@@ -200,11 +201,8 @@ const ClientDashboard = () => {
                 ))}
             </div>
 
-            {/* Equipment + Tickets Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
-
-                {/* Equipment Health */}
-                <div className="card">
+            {/* Equipment Health */}
+            <div className="card">
                     <div className="card-header">
                         <div>
                             <h2 className="card-title">Equipment Health</h2>
@@ -250,7 +248,8 @@ const ClientDashboard = () => {
                             <h3 className="empty-state-title">No equipment registered</h3>
                         </div>
                     ) : (
-                        equipment.slice(0, 5).map(item => {
+                        <div className="eq-items-grid">
+                            {equipment.slice(0, 5).map(item => {
                             const s   = item.status;
                             const cfg = EQ_STATUS[s] || EQ_STATUS['out of service'];
                             return (
@@ -275,21 +274,23 @@ const ClientDashboard = () => {
                                         {cfg.label}
                                     </span>
                                 </div>
+                                </div>
                             );
-                        })
+                        })}
+                        </div>
                     )}
                 </div>
-            </div>
 
             {/* Ticket Status Board (Kanban) */}
-            <div style={{ marginBottom: 32 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--brand-navy)', margin: 0 }}>Active Service Board</h2>
-                    <button onClick={() => navigate('/client/tickets')} className="btn btn-ghost btn-sm" style={{ fontWeight: 600 }}>
-                        View All History →
+            <div className="card">
+                <div className="card-header">
+                    <h2 className="card-title">Active Service Board</h2>
+                    <button onClick={() => navigate('/client/tickets')} className="btn btn-ghost btn-sm">
+                        View All History <MdArrowForward />
                     </button>
                 </div>
-                <div className="service-board">
+                <div style={{ padding: '16px' }}>
+                    <div className="service-board">
                     {/* Open Column */}
                     <div className="kanban-column">
                         <div className="kanban-header">
@@ -300,8 +301,9 @@ const ClientDashboard = () => {
                         </div>
                         <div className="kanban-body">
                             {tickets.filter(t => t.status === 'open').length === 0 ? (
-                                <div className="empty-state" style={{ background: 'transparent', padding: '20px 10px' }}>
-                                    <p style={{ margin: 0, fontSize: 13 }}>No open tickets</p>
+                                <div className="kanban-empty">
+                                    <FiCheckSquare className="kanban-empty-icon" />
+                                    <p style={{ margin: 0 }}>No open tickets</p>
                                 </div>
                             ) : tickets.filter(t => t.status === 'open').map(t => (
                                 <div key={t._id} onClick={() => navigate('/client/tickets')} className="kanban-card">
@@ -329,8 +331,9 @@ const ClientDashboard = () => {
                         </div>
                         <div className="kanban-body">
                             {tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').length === 0 ? (
-                                <div className="empty-state" style={{ background: 'transparent', padding: '20px 10px' }}>
-                                    <p style={{ margin: 0, fontSize: 13 }}>No tickets in progress</p>
+                                <div className="kanban-empty">
+                                    <FiCheckSquare className="kanban-empty-icon" />
+                                    <p style={{ margin: 0 }}>No tickets in progress</p>
                                 </div>
                             ) : tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').map(t => (
                                 <div key={t._id} onClick={() => navigate('/client/tickets')} className="kanban-card">
@@ -361,8 +364,9 @@ const ClientDashboard = () => {
                         </div>
                         <div className="kanban-body">
                             {tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length === 0 ? (
-                                <div className="empty-state" style={{ background: 'transparent', padding: '20px 10px' }}>
-                                    <p style={{ margin: 0, fontSize: 13 }}>No resolved tickets yet</p>
+                                <div className="kanban-empty">
+                                    <FiCheckSquare className="kanban-empty-icon" />
+                                    <p style={{ margin: 0 }}>No resolved tickets yet</p>
                                 </div>
                             ) : tickets.filter(t => t.status === 'resolved' || t.status === 'closed').slice(0,10).map(t => (
                                 <div key={t._id} onClick={() => navigate('/client/tickets')} className="kanban-card" style={{ opacity: 0.85 }}>
@@ -390,14 +394,22 @@ const ClientDashboard = () => {
                 </div>
                 <div className="quick-actions-grid">
                     {quickActions.map(action => (
-                        <button key={action.path} onClick={() => navigate(action.path)} className="qa-btn">
-                            <div className="qa-icon-wrap" style={{ background: action.color }}>
-                                {action.icon}
+                        <button
+                            key={action.path}
+                            onClick={() => navigate(action.path)}
+                            className="qa-btn"
+                            style={{ borderLeftColor: action.color }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                <div className="qa-icon-wrap" style={{ background: action.color }}>
+                                    {action.icon}
+                                </div>
+                                <div className="qa-content">
+                                    <h3 className="qa-title">{action.label}</h3>
+                                    <p className="qa-sub">{action.sub}</p>
+                                </div>
                             </div>
-                            <div className="qa-content">
-                                <h3 className="qa-title">{action.label}</h3>
-                                <p className="qa-sub">{action.sub}</p>
-                            </div>
+                            <MdArrowForward className="qa-arrow" />
                         </button>
                     ))}
                 </div>

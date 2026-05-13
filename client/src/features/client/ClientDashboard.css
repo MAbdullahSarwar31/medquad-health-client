@@ -2,14 +2,38 @@
    CLIENT DASHBOARD — Premium UI Styles
    ═══════════════════════════════════════════════════════════ */
 
+/* ── Global Layout ── */
+.cd-root {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-bottom: 40px;
+}
+
 /* ── KPI Grid Updates ── */
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.stat-info {
+    min-width: 0;
+    flex: 1;
+}
+
 .client-kpi-value {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 800;
     color: var(--brand-navy, #1a2744);
     line-height: 1;
     margin-bottom: 6px;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.8px;
 }
 
 /* ── Equipment Health Card ── */
@@ -58,6 +82,15 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
+.eq-items-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.eq-items-grid > * {
+    border-top: 1px solid var(--gray-100);
+}
+
 /* ── Active Service Board (Kanban) ── */
 .service-board {
     display: grid;
@@ -72,8 +105,8 @@
     border: 1px solid var(--gray-200, #e5e7eb);
     display: flex;
     flex-direction: column;
-    min-height: 380px;
-    max-height: 500px;
+    min-height: 180px;
+    max-height: 400px;
 }
 
 .kanban-header {
@@ -112,6 +145,23 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.kanban-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 16px;
+    color: var(--gray-400);
+    font-size: 13px;
+    flex: 1;
+}
+
+.kanban-empty-icon {
+    font-size: 28px;
+    opacity: 0.4;
 }
 
 /* ── Ticket Cards inside Kanban ── */
@@ -190,16 +240,30 @@
     padding: 20px;
     background: #fff;
     border: 1px solid var(--gray-200, #e5e7eb);
+    border-left: 3px solid transparent;
     border-radius: 12px;
     text-align: left;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     width: 100%;
+    justify-content: space-between;
 }
 
 .qa-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.qa-arrow {
+    font-size: 20px;
+    color: var(--gray-400);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.qa-btn:hover .qa-arrow {
+    transform: translateX(4px);
+    color: var(--text-dark);
 }
 
 .qa-icon-wrap {
@@ -240,11 +304,12 @@
     .service-board {
         grid-template-columns: 1fr;
     }
-    .kanban-column {
-        min-height: 200px;
-        max-height: 400px;
-    }
     .quick-actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 768px) {
+    .eq-items-grid {
         grid-template-columns: 1fr;
     }
 }
