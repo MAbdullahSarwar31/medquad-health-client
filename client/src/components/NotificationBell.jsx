@@ -5,12 +5,14 @@ import {
     FiAlertTriangle, FiCheckCircle, FiXCircle, FiTool,
     FiPackage, FiCpu, FiFileText, FiBell
 } from 'react-icons/fi';
-import axios from 'axios';
 import { io } from 'socket.io-client';
 import './NotificationBell.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+// Use the SAME api instance the rest of the app uses (cookie-based auth)
+import api from '../services/api';
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL
+    || (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api/v1', '') : 'http://localhost:5000');
 
 const TYPE_CONFIG = {
     ticket_created:   { icon: <FiFileText />,      color: '#3b82f6', label: 'New Ticket' },
@@ -44,27 +46,27 @@ export default function NotificationBell({ user }) {
     const socketRef                   = useRef(null);
     const navigate                    = useNavigate();
 
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-
-    const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
-
-    // Fetch unread count (for badge)
+    // Fetch unread count (for badge) — uses cookie auth automatically
     const fetchUnreadCount = useCallback(async () => {
         try {
-            const { data } = await axios.get(`${API_BASE}/notifications/unread-count`, authHeaders);
+            const { data } = await api.get('/notifications/unread-count');
             setUnreadCount(data.data.count);
-        } catch { /* silent */ }
-    }, [token]);
+        } catch (err) {
+            console.error('[NotificationBell] fetchUnreadCount failed:', err.response?.status, err.message);
+        }
+    }, []);
 
-    // Fetch notifications for dropdown
+    // Fetch notifications for dropdown — uses cookie auth automatically
     const fetchNotifications = useCallback(async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get(`${API_BASE}/notifications?limit=10`, authHeaders);
+            const { data } = await api.get('/notifications?limit=10');
             setNotifications(data.data.notifications);
-        } catch { /* silent */ }
+        } catch (err) {
+            console.error('[NotificationBell] fetchNotifications failed:', err.response?.status, err.message);
+        }
         finally { setLoading(false); }
-    }, [token]);
+    }, []);
 
     // Connect Socket.IO for real-time updates
     useEffect(() => {
@@ -112,7 +114,7 @@ export default function NotificationBell({ user }) {
 
     const handleMarkRead = async (id) => {
         try {
-            await axios.patch(`${API_BASE}/notifications/${id}/read`, {}, authHeaders);
+            await api.patch(`/notifications/${id}/read`, {});
             setNotifications((prev) =>
                 prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
             );
@@ -122,7 +124,7 @@ export default function NotificationBell({ user }) {
 
     const handleMarkAllRead = async () => {
         try {
-            await axios.patch(`${API_BASE}/notifications/read-all`, {}, authHeaders);
+            await api.patch('/notifications/read-all', {});
             setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
             setUnreadCount(0);
         } catch { /* silent */ }
@@ -137,7 +139,7 @@ export default function NotificationBell({ user }) {
     const handleDelete = async (e, id) => {
         e.stopPropagation();
         try {
-            await axios.delete(`${API_BASE}/notifications/${id}`, authHeaders);
+            await api.delete(`/notifications/${id}`);
             setNotifications((prev) => prev.filter((n) => n._id !== id));
         } catch { /* silent */ }
     };

@@ -1,5 +1,5 @@
-git config user.name "MAbdullahSarwar31"
-git config user.email "m.abdullah.sarwar31@gmail.com"
+git config user.name "aizazahmed001"
+git config user.email "aizazahmed098@gmail.com"
 git add .
-git commit -m "fix: correct local environment API fallbacks for notifications"
+git commit -m "fix(critical): replace broken Bearer token auth with cookie-based api instance in NotificationBell and NotificationsPage"
 git push

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import {
     FiBell, FiCheckCircle, FiTrash2, FiFilter,
     FiAlertTriangle, FiXCircle, FiTool, FiPackage, FiCpu, FiFileText
@@ -8,7 +8,7 @@ import {
 import { MdDoneAll } from 'react-icons/md';
 import './NotificationsPage.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
 
 const TYPE_CONFIG = {
     ticket_created:    { icon: <FiFileText />,      color: '#3b82f6', label: 'New Ticket' },
@@ -51,9 +51,6 @@ export default function NotificationsPage() {
     const [selected, setSelected]           = useState(new Set());
     const navigate                          = useNavigate();
 
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
-
     const fetchNotifications = useCallback(async () => {
         setLoading(true);
         try {
@@ -62,13 +59,15 @@ export default function NotificationsPage() {
             if (activeTab === 'unread') params.set('isRead', 'false');
             if (tab?.types) params.set('type', tab.types.join(','));
 
-            const { data } = await axios.get(`${API_BASE}/notifications?${params}`, authHeaders);
+            const { data } = await api.get(`/notifications?${params}`);
             setNotifications(data.data.notifications);
             setTotalPages(data.data.pagination.pages);
             setTotalCount(data.data.pagination.total);
-        } catch { /* silent */ }
+        } catch (err) {
+            console.error('[NotificationsPage] fetch failed:', err.response?.status, err.message);
+        }
         finally { setLoading(false); }
-    }, [activeTab, page, token]);
+    }, [activeTab, page]);
 
     useEffect(() => {
         fetchNotifications();
@@ -76,28 +75,28 @@ export default function NotificationsPage() {
 
     const handleMarkRead = async (id) => {
         try {
-            await axios.patch(`${API_BASE}/notifications/${id}/read`, {}, authHeaders);
+            await api.patch(`/notifications/${id}/read`, {});
             setNotifications((prev) => prev.map((n) => n._id === id ? { ...n, isRead: true } : n));
         } catch { /* silent */ }
     };
 
     const handleMarkAllRead = async () => {
         try {
-            await axios.patch(`${API_BASE}/notifications/read-all`, {}, authHeaders);
+            await api.patch('/notifications/read-all', {});
             setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         } catch { /* silent */ }
     };
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${API_BASE}/notifications/${id}`, authHeaders);
+            await api.delete(`/notifications/${id}`);
             setNotifications((prev) => prev.filter((n) => n._id !== id));
             setSelected((prev) => { const s = new Set(prev); s.delete(id); return s; });
         } catch { /* silent */ }
     };
 
     const handleDeleteSelected = async () => {
-        await Promise.allSettled([...selected].map((id) => axios.delete(`${API_BASE}/notifications/${id}`, authHeaders)));
+        await Promise.allSettled([...selected].map((id) => api.delete(`/notifications/${id}`)));
         setNotifications((prev) => prev.filter((n) => !selected.has(n._id)));
         setSelected(new Set());
     };
