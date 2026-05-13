@@ -75,7 +75,17 @@ export default function NotificationBell({ user }) {
         socketRef.current = socket;
 
         socket.on('connect', () => {
+            console.log('[NotifBell] Socket connected, joining room for user:', user._id);
             socket.emit('joinUserRoom', user._id);
+        });
+
+        socket.on('reconnect', () => {
+            console.log('[NotifBell] Socket reconnected, re-joining room for user:', user._id);
+            socket.emit('joinUserRoom', user._id);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('[NotifBell] Socket connection error:', error);
         });
 
         socket.on('newNotification', (notification) => {

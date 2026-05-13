@@ -11,7 +11,7 @@ const getNotifications = async (req, res, next) => {
         const query = { recipient: req.user._id };
 
         if (isRead !== undefined) query.isRead = isRead === 'true';
-        if (type) query.type = type;
+        if (type) query.type = { $in: type.split(',') };
 
         const total = await Notification.countDocuments(query);
         const notifications = await Notification.find(query)
@@ -111,10 +111,47 @@ const deleteNotification = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Test the notification pipeline for the current user
+ * @route   POST /api/v1/notifications/test
+ * @access  Authenticated
+ */
+const testNotification = async (req, res, next) => {
+    try {
+        const { notify } = require('../services/notificationService');
+        const io = req.app.get('io');
+        
+        await notify({
+            recipientId: req.user._id,
+            type: 'general',
+            title: 'Diagnostic Test Notification',
+            message: `Hello ${req.user.name}, this is a test of the MedQuad Notification System.`,
+            link: '/notifications',
+            sendEmail: false,
+            io,
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Test notification sent successfully',
+            data: {
+                user: {
+                    _id: req.user._id,
+                    name: req.user.name,
+                    role: req.user.role
+                }
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getNotifications,
     getUnreadCount,
     markAsRead,
     markAllAsRead,
     deleteNotification,
+    testNotification,
 };

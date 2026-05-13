@@ -97,6 +97,9 @@ const notify = async ({
 const getAdminIds = async () => {
     // Some older user docs might not have isActive explicitly set to true.
     const admins = await User.find({ role: 'admin', isActive: { $ne: false } }).select('_id').lean();
+    if (admins.length === 0) {
+        console.warn('[NotificationService] WARNING: getAdminIds returned empty! No admin users in DB?');
+    }
     return admins.map((a) => a._id);
 };
 

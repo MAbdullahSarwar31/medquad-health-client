@@ -274,7 +274,6 @@ const ClientDashboard = () => {
                                         {cfg.label}
                                     </span>
                                 </div>
-                                </div>
                             );
                         })}
                         </div>
