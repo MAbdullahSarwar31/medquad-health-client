@@ -173,7 +173,8 @@
     align-items: flex-start;
     gap: 16px;
     padding: 18px 20px;
-    background: var(--brand-navy, #1a2744);
+    background-color: var(--brand-navy, #1a2744);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -185,16 +186,21 @@
     transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1);
     border-color: rgba(255, 255, 255, 0.15);
+    background-color: #1e2d4a; /* slight lighten on hover */
 }
 
 .np-item.unread {
-    background: linear-gradient(90deg, rgba(232, 25, 44, 0.1) 0%, var(--brand-navy) 40%);
-    border-color: rgba(232, 25, 44, 0.25);
+    background-color: var(--brand-navy, #1a2744);
+    background-image: linear-gradient(90deg, rgba(232, 25, 44, 0.15) 0%, rgba(26, 39, 68, 0) 50%);
+    border-color: rgba(232, 25, 44, 0.3);
+    border-left: 4px solid #E8192C;
+    padding-left: 17px; /* compensate for 3px thicker border */
 }
 
 .np-item.selected {
+    background-color: #1a2744;
+    background-image: linear-gradient(0deg, rgba(232, 25, 44, 0.08), rgba(232, 25, 44, 0.08));
     border-color: #E8192C;
-    background: rgba(232, 25, 44, 0.05);
     box-shadow: 0 0 0 1px #E8192C;
 }
 
