@@ -165,8 +165,8 @@ export default function TeamPage() {
                         <h2>Want to Join Our Team?</h2>
                         <p>We're always looking for talented engineers &amp; specialists passionate about healthcare technology.</p>
                         <div className="pub-cta-btns">
-                            <a href="mailto:info@medquadhealth.com" className="pub-btn-primary">Send Your CV →</a>
-                            <Link to="/contact" className="pub-btn-outline">Contact Us</Link>
+                            <Link to="/contact" className="pub-btn-primary">Send Your CV →</Link>
+                            <Link to="/about" className="pub-btn-outline">Learn About Us</Link>
                         </div>
                     </div>
                 </div>
