@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { FiTool, FiActivity, FiLayers, FiSettings, FiPackage, FiFileText } from 'react-icons/fi';
 import '../../components/PublicLayout.css';
 import './Website.css';
 import useSEO from '../../hooks/useSEO';
@@ -7,32 +8,32 @@ import FadeIn from '../../components/animations/FadeIn';
 
 const SERVICES = [
     {
-        icon: '🔧', title: 'Preventive Maintenance',
+        icon: <FiTool />, title: 'Preventive Maintenance',
         features: ['Scheduled PPM visits', 'Parts inspection & replacement', 'Performance benchmarking', 'Safety checks & compliance'],
         desc: 'Stay ahead of equipment failures with structured maintenance contracts. Our engineers carry out thorough inspections to keep your systems within OEM specifications.'
     },
     {
-        icon: '🩺', title: 'Emergency Repair',
+        icon: <FiActivity />, title: 'Emergency Repair',
         features: ['24/7 call-out availability', 'Rapid fault diagnosis', 'On-site & remote support', 'Minimal downtime guarantee'],
         desc: 'When equipment fails, every minute matters. Our rapid-response team provides emergency repair services across Pakistan, often resolving issues on the first visit.'
     },
     {
-        icon: '🏗️', title: 'Equipment Installation',
+        icon: <FiLayers />, title: 'Equipment Installation',
         features: ['Site survey & planning', 'Civil & electrical coordination', 'System commissioning', 'Staff handover & training'],
         desc: 'From initial site survey to full commissioning, we manage your MRI or CT installation end-to-end — ensuring compliance with all technical and safety requirements.'
     },
     {
-        icon: '⚙️', title: 'System Upgrades',
+        icon: <FiSettings />, title: 'System Upgrades',
         features: ['Software & hardware upgrades', 'Coil & component replacement', 'Performance enhancement', 'Post-upgrade testing'],
         desc: 'Extend the life of your existing systems with targeted upgrades. We source and fit genuine and OEM-compatible components to restore peak performance.'
     },
     {
-        icon: '📦', title: 'Spare Parts Supply',
+        icon: <FiPackage />, title: 'Spare Parts Supply',
         features: ['Gradient amplifiers', 'Power supplies & boards', 'RF coils & cables', 'Tubes & cooling components'],
         desc: 'We maintain a curated inventory of spare parts for major MRI and CT platforms. Fast delivery ensures your engineers can complete repairs without long wait times.'
     },
     {
-        icon: '📋', title: 'Service Contracts',
+        icon: <FiFileText />, title: 'Service Contracts',
         features: ['Annual & multi-year plans', 'Priority response SLAs', 'Unlimited call-outs included', 'Detailed service reports'],
         desc: 'Protect your investment with a tailored service contract. Predictable costs, priority scheduling, and comprehensive coverage give you peace of mind all year round.'
     },

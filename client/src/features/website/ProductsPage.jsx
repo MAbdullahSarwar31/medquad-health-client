@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FiTarget, FiMonitor, FiSettings, FiCheckCircle, FiShield, FiTruck, FiTool, FiPhone, FiMessageCircle } from 'react-icons/fi';
 import '../../components/PublicLayout.css';
 import './Website.css';
 import useSEO from '../../hooks/useSEO';
@@ -7,21 +8,21 @@ import useSEO from '../../hooks/useSEO';
 const PRODUCTS = [
     {
         category: 'MRI Systems',
-        icon: '🧲',
+        icon: <FiTarget />,
         desc: 'Certified refurbished MRI units from leading manufacturers. Available in 1.5T and 3.0T field strengths.',
         brands: ['GE Healthcare', 'Siemens Healthineers', 'Philips Healthcare', 'Canon Medical', 'Hitachi'],
         features: ['Factory-tested & certified', 'Full warranty included', 'Installation support available', 'Training for operators'],
     },
     {
         category: 'CT Scanners',
-        icon: '🩻',
+        icon: <FiMonitor />,
         desc: 'High-performance CT imaging systems from 16-slice to 128-slice configurations for all clinical applications.',
         brands: ['GE Healthcare', 'Siemens Healthineers', 'Philips Healthcare', 'Canon Medical'],
         features: ['Multi-slice configurations', 'Low-dose technology', 'DICOM compatible', 'Remote diagnostics ready'],
     },
     {
         category: 'Spare Parts',
-        icon: '⚙️',
+        icon: <FiSettings />,
         desc: 'Genuine and OEM-compatible spare components for MRI and CT systems — fast delivery across Pakistan.',
         brands: ['All Major Brands'],
         features: ['Gradient amplifiers', 'Power supplies & boards', 'RF coils & cables', 'Tubes & cooling systems'],
@@ -86,7 +87,7 @@ export default function ProductsPage() {
                                 ))}
                             </div>
                             <div className="products-note">
-                                <span>📞</span>
+                                <span><FiPhone /></span>
                                 <div>
                                     <strong>Can't find what you need?</strong>
                                     <p>Call us on <a href="tel:+923225014415">+92 322 5014415</a> — we source equipment globally to meet your specification.</p>
@@ -106,10 +107,10 @@ export default function ProductsPage() {
                     </div>
                     <div className="pub-grid-4">
                         {[
-                            { icon: '✅', title: 'OEM Certified', desc: 'Every system tested to manufacturer specifications before shipment.' },
-                            { icon: '🛡️', title: 'Warranty Included', desc: 'Comprehensive warranty on parts and labour for peace of mind.' },
-                            { icon: '🚚', title: 'Nationwide Delivery', desc: 'We handle logistics and installation anywhere in Pakistan.' },
-                            { icon: '🔧', title: 'Ongoing Support', desc: 'Post-sale service contracts available for continued maintenance.' },
+                            { icon: <FiCheckCircle />, title: 'OEM Certified', desc: 'Every system tested to manufacturer specifications before shipment.' },
+                            { icon: <FiShield />, title: 'Warranty Included', desc: 'Comprehensive warranty on parts and labour for peace of mind.' },
+                            { icon: <FiTruck />, title: 'Nationwide Delivery', desc: 'We handle logistics and installation anywhere in Pakistan.' },
+                            { icon: <FiTool />, title: 'Ongoing Support', desc: 'Post-sale service contracts available for continued maintenance.' },
                         ].map(x => (
                             <div key={x.title} className="pub-card" style={{ textAlign: 'center' }}>
                                 <div className="pub-card-icon" style={{ margin: '0 auto 16px', fontSize: 22 }}>{x.icon}</div>
@@ -128,7 +129,7 @@ export default function ProductsPage() {
                         <p>Tell us your requirements and we'll source the right equipment for your facility.</p>
                         <div className="pub-cta-btns">
                             <Link to="/contact" className="pub-btn-primary">Submit an Enquiry →</Link>
-                            <a href="https://wa.me/923225014415" target="_blank" rel="noreferrer" className="pub-btn-outline">💬 WhatsApp Us</a>
+                            <a href="https://wa.me/923225014415" target="_blank" rel="noreferrer" className="pub-btn-outline"><FiMessageCircle style={{ marginRight: '6px' }} /> WhatsApp Us</a>
                         </div>
                     </div>
                 </div>

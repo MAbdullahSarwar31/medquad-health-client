@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { FiAward, FiUsers, FiZap, FiGlobe, FiTarget } from 'react-icons/fi';
 import '../../components/PublicLayout.css';
 import './Website.css';
 import useSEO from '../../hooks/useSEO';
@@ -6,10 +7,10 @@ import ScrollFloat from '../../components/animations/ScrollFloat';
 import FadeIn from '../../components/animations/FadeIn';
 
 const VALUES = [
-    { icon: '🏆', title: 'Quality First', desc: 'Every system undergoes rigorous testing and certification to meet OEM performance standards before delivery.' },
-    { icon: '🤝', title: 'Trust & Integrity', desc: 'We build lasting partnerships with healthcare institutions through transparent pricing and honest communication.' },
-    { icon: '💡', title: 'Innovation', desc: 'Staying current with the latest imaging technology to offer cost-effective, cutting-edge solutions.' },
-    { icon: '🌍', title: 'Healthcare for All', desc: 'Making high-quality imaging technology accessible to hospitals and clinics across Pakistan at affordable prices.' },
+    { icon: <FiAward />, title: 'Quality First', desc: 'Every system undergoes rigorous testing and certification to meet OEM performance standards before delivery.' },
+    { icon: <FiUsers />, title: 'Trust & Integrity', desc: 'We build lasting partnerships with healthcare institutions through transparent pricing and honest communication.' },
+    { icon: <FiZap />, title: 'Innovation', desc: 'Staying current with the latest imaging technology to offer cost-effective, cutting-edge solutions.' },
+    { icon: <FiGlobe />, title: 'Healthcare for All', desc: 'Making high-quality imaging technology accessible to hospitals and clinics across Pakistan at affordable prices.' },
 ];
 
 const TIMELINE = [
@@ -55,7 +56,7 @@ export default function AboutPage() {
                     </div>
                     <FadeIn className="about-mission-visual" delay={150}>
                         <div className="about-mission-card">
-                            <div className="about-mission-icon">🎯</div>
+                            <div className="about-mission-icon"><FiTarget /></div>
                             <h3>Our Vision</h3>
                             <p>To become Pakistan's most trusted partner in medical imaging technology —
                                 known for reliability, expertise, and impact on patient outcomes.</p>

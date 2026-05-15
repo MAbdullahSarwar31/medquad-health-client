@@ -47,7 +47,7 @@
 
 /* Logo */
 .pub-nav-logo img {
-    height: 44px;
+    height: 64px;
     width: auto;
     object-fit: contain;
     display: block;
@@ -151,6 +151,7 @@
 
 .pub-nav-btn:hover {
     background: var(--brand-red-dark);
+    color: white !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 14px rgba(232, 25, 44, 0.35);
 }
