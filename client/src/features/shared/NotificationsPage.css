@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   NOTIFICATIONS PAGE — Microsoft Fluent Design
+   NOTIFICATIONS PAGE — Medquad Dark Navy & Neon Red Theme
    ═══════════════════════════════════════════════════════════ */
 
 .np-wrapper {
@@ -80,26 +80,27 @@
     color: #fff;
 }
 
-/* ── Filter Tabs (Fluent Segmented Control) ── */
+/* ── Filter Tabs (Navy & Neon Red Control) ── */
 .np-tabs {
     display: flex;
     gap: 4px;
     margin-bottom: 24px;
-    padding: 4px;
-    background: rgba(0, 0, 0, 0.04);
-    border-radius: 10px;
+    padding: 6px;
+    background: var(--brand-navy, #1a2744);
+    border-radius: 12px;
     width: fit-content;
     flex-wrap: wrap;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .np-tab {
     padding: 8px 18px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     background: transparent;
     font-size: 13.5px;
     font-weight: 600;
-    color: var(--gray-600, #4b5563);
+    color: rgba(255, 255, 255, 0.65);
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -107,14 +108,14 @@
 }
 
 .np-tab:hover:not(.active) {
-    color: var(--text-dark, #111827);
-    background: rgba(0,0,0,0.03);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .np-tab.active {
-    background: #fff;
-    color: var(--brand-navy, #1a2744);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 1px 1px rgba(0,0,0,0.04);
+    background: linear-gradient(135deg, #E8192C 0%, #C0141F 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(232, 25, 44, 0.42), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 /* ── Notification List ── */
@@ -128,7 +129,7 @@
 .np-skeleton {
     height: 90px;
     border-radius: 16px;
-    background: linear-gradient(90deg, #f3f4f6 25%, #e9eaec 50%, #f3f4f6 75%);
+    background: linear-gradient(90deg, #1a2744 25%, #2a385e 50%, #1a2744 75%);
     background-size: 200% 100%;
     animation: npShimmer 1.4s infinite;
 }
@@ -145,18 +146,18 @@
     align-items: center;
     justify-content: center;
     padding: 72px 24px;
-    color: var(--gray-400, #9ca3af);
+    color: rgba(255, 255, 255, 0.5);
     gap: 16px;
     text-align: center;
-    background: #fff;
-    border: 1px dashed var(--gray-300, #d1d5db);
+    background: var(--brand-navy, #1a2744);
+    border: 1px dashed rgba(255,255,255,0.15);
     border-radius: 16px;
 }
 
 .np-empty h3 {
     margin: 0;
     font-size: 18px;
-    color: var(--gray-600, #4b5563);
+    color: #ffffff;
     font-weight: 700;
 }
 
@@ -166,42 +167,42 @@
     font-weight: 500;
 }
 
-/* ── Notification Item (Fluent Floating Card) ── */
+/* ── Notification Item (Dark Navy Floating Card) ── */
 .np-item {
     display: flex;
     align-items: flex-start;
     gap: 16px;
     padding: 18px 20px;
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.06);
+    background: var(--brand-navy, #1a2744);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
     position: relative;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .np-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
-    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .np-item.unread {
-    background: linear-gradient(90deg, rgba(37, 99, 235, 0.02) 0%, #fff 60%);
-    border-color: rgba(37, 99, 235, 0.15);
+    background: linear-gradient(90deg, rgba(232, 25, 44, 0.1) 0%, var(--brand-navy) 40%);
+    border-color: rgba(232, 25, 44, 0.25);
 }
 
 .np-item.selected {
-    border-color: #2563eb;
-    background: rgba(37, 99, 235, 0.03);
-    box-shadow: 0 0 0 1px #2563eb;
+    border-color: #E8192C;
+    background: rgba(232, 25, 44, 0.05);
+    box-shadow: 0 0 0 1px #E8192C;
 }
 
 /* ── Checkbox ── */
 .np-checkbox {
     width: 18px;
     height: 18px;
-    accent-color: #2563eb;
+    accent-color: #E8192C;
     cursor: pointer;
     flex-shrink: 0;
     margin-top: 10px;
@@ -217,8 +218,9 @@
     justify-content: center;
     font-size: 18px;
     flex-shrink: 0;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: #2a385e; /* lighter navy */
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.2);
+    color: #fff;
 }
 
 /* ── Content ── */
@@ -248,7 +250,7 @@
 
 .np-item-time {
     font-size: 12px;
-    color: var(--gray-400, #9ca3af);
+    color: rgba(255, 255, 255, 0.45);
     font-weight: 600;
     margin-left: auto;
     white-space: nowrap;
@@ -259,19 +261,19 @@
     margin: 0 0 4px;
     font-size: 15px;
     font-weight: 600;
-    color: var(--text-dark, #111827);
+    color: rgba(255, 255, 255, 0.85);
     line-height: 1.4;
 }
 
 .np-item.unread .np-item-title {
     font-weight: 700;
-    color: #0f172a;
+    color: #ffffff;
 }
 
 .np-item-msg {
     margin: 0;
     font-size: 13.5px;
-    color: var(--gray-500, #6b7280);
+    color: rgba(255, 255, 255, 0.55);
     line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -280,7 +282,7 @@
 }
 
 .np-item.unread .np-item-msg {
-    color: #475569;
+    color: rgba(255, 255, 255, 0.75);
 }
 
 /* ── Unread Right Indicator ── */
@@ -288,12 +290,18 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    background: #E8192C;
+    box-shadow: 0 0 8px rgba(232, 25, 44, 0.8), 0 0 0 2px rgba(232, 25, 44, 0.2);
     flex-shrink: 0;
     margin-top: 17px;
     margin-right: 6px;
-    animation: pulseDot 2s infinite;
+    animation: pulseNeonCard 2s infinite;
+}
+
+@keyframes pulseNeonCard {
+    0% { box-shadow: 0 0 8px rgba(232, 25, 44, 0.8), 0 0 0 0 rgba(232, 25, 44, 0.5); }
+    70% { box-shadow: 0 0 8px rgba(232, 25, 44, 0.8), 0 0 0 6px rgba(232, 25, 44, 0); }
+    100% { box-shadow: 0 0 8px rgba(232, 25, 44, 0.8), 0 0 0 0 rgba(232, 25, 44, 0); }
 }
 
 /* ── Action Buttons ── */
@@ -314,20 +322,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 10px;
     cursor: pointer;
     font-size: 16px;
     transition: all 0.2s ease;
     padding: 0;
-    background: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    background: rgba(255,255,255,0.04);
 }
 
 .np-action-btn.read  { color: #10b981; }
-.np-action-btn.read:hover  { background: #10b981; color: #fff; border-color: #10b981; }
+.np-action-btn.read:hover  { background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.3); }
 .np-action-btn.delete { color: #ef4444; }
-.np-action-btn.delete:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+.np-action-btn.delete:hover { background: rgba(239,68,68,0.15); color: #f87171; border-color: rgba(239,68,68,0.3); }
 
 /* ── Pagination ── */
 .np-pagination {
@@ -340,22 +347,23 @@
 
 .np-page-btn {
     padding: 8px 18px;
-    border: 1px solid var(--gray-200, #e5e7eb);
+    border: 1px solid var(--gray-300, #d1d5db);
     border-radius: 8px;
     background: #fff;
-    color: var(--gray-600, #4b5563);
+    color: var(--gray-700, #374151);
     font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .np-page-btn:hover:not(:disabled) {
-    background: var(--brand-navy, #1a2744);
-    border-color: var(--brand-navy, #1a2744);
+    background: linear-gradient(135deg, #E8192C 0%, #C0141F 100%);
+    border-color: transparent;
     color: #fff;
+    box-shadow: 0 4px 16px rgba(232, 25, 44, 0.3);
 }
 
 .np-page-btn:disabled {
