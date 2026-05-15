@@ -19,7 +19,7 @@ const getTickets = async (req, res, next) => {
 
         // Role-based filtering
         if (req.user.role === 'client') {
-            query.clientId = req.user.clientId;
+            query.clientId = req.user.clientId || req.user._id;
         } else if (req.user.role === 'employee') {
             query.assignedEmployee = req.user._id;
         }
@@ -84,7 +84,8 @@ const getTicket = async (req, res, next) => {
         }
 
         // Client can only view their own tickets
-        if (req.user.role === 'client' && ticket.clientId._id.toString() !== req.user.clientId?.toString()) {
+        const expectedClientId = req.user.clientId ? req.user.clientId.toString() : req.user._id.toString();
+        if (req.user.role === 'client' && ticket.clientId._id.toString() !== expectedClientId) {
             return res.status(403).json({ success: false, message: 'Access denied' });
         }
 
@@ -104,7 +105,7 @@ const createTicket = async (req, res, next) => {
         const { equipmentId, description, priority } = req.body;
 
         const ticketData = {
-            clientId: req.user.role === 'client' ? req.user.clientId : req.body.clientId,
+            clientId: req.user.role === 'client' ? (req.user.clientId || req.user._id) : req.body.clientId,
             equipmentId,
             description,
             priority: priority || 'medium',
