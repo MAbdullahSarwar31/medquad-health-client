@@ -1,10 +1,11 @@
 /* ═══════════════════════════════════════════════════════════
-   NOTIFICATIONS PAGE — Matches MedQuad Portal Design System
+   NOTIFICATIONS PAGE — Microsoft Fluent Design
    ═══════════════════════════════════════════════════════════ */
 
 .np-wrapper {
     padding: 0;
-    max-width: 820px;
+    max-width: 860px;
+    margin: 0 auto;
 }
 
 /* ── Header ── */
@@ -18,22 +19,24 @@
 }
 
 .np-title {
-    font-size: 22px;
-    font-weight: 800;
+    font-size: 24px;
+    font-weight: 700;
     color: var(--brand-navy, #1a2744);
-    margin: 0 0 3px;
+    margin: 0 0 4px;
     line-height: 1.2;
+    letter-spacing: -0.5px;
 }
 
 .np-subtitle {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--gray-500, #6b7280);
     margin: 0;
+    font-weight: 500;
 }
 
 .np-header-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
@@ -42,27 +45,27 @@
 .np-btn-danger {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 8px 16px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid transparent;
     font-family: inherit;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .np-btn-secondary {
-    background: var(--gray-100, #f3f4f6);
+    background: #fff;
     color: var(--gray-700, #374151);
     border-color: var(--gray-200, #e5e7eb);
 }
 
 .np-btn-secondary:hover {
-    background: var(--brand-navy, #1a2744);
-    border-color: var(--brand-navy, #1a2744);
-    color: #fff;
+    background: rgba(0,0,0,0.02);
+    border-color: var(--gray-300, #d1d5db);
 }
 
 .np-btn-danger {
@@ -77,55 +80,54 @@
     color: #fff;
 }
 
-/* ── Filter Tabs ── */
+/* ── Filter Tabs (Fluent Segmented Control) ── */
 .np-tabs {
     display: flex;
     gap: 4px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     padding: 4px;
-    background: var(--gray-100, #f3f4f6);
+    background: rgba(0, 0, 0, 0.04);
     border-radius: 10px;
     width: fit-content;
     flex-wrap: wrap;
 }
 
 .np-tab {
-    padding: 7px 16px;
+    padding: 8px 18px;
     border: none;
-    border-radius: 7px;
+    border-radius: 6px;
     background: transparent;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--gray-500, #6b7280);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--gray-600, #4b5563);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     white-space: nowrap;
     font-family: inherit;
 }
 
-.np-tab:hover {
+.np-tab:hover:not(.active) {
     color: var(--text-dark, #111827);
-    background: rgba(0,0,0,0.04);
+    background: rgba(0,0,0,0.03);
 }
 
 .np-tab.active {
     background: #fff;
     color: var(--brand-navy, #1a2744);
-    font-weight: 700;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 1px 1px rgba(0,0,0,0.04);
 }
 
 /* ── Notification List ── */
 .np-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 }
 
 /* ── Skeleton Loading ── */
 .np-skeleton {
-    height: 82px;
-    border-radius: 10px;
+    height: 90px;
+    border-radius: 16px;
     background: linear-gradient(90deg, #f3f4f6 25%, #e9eaec 50%, #f3f4f6 75%);
     background-size: 200% 100%;
     animation: npShimmer 1.4s infinite;
@@ -142,90 +144,81 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 64px 24px;
+    padding: 72px 24px;
     color: var(--gray-400, #9ca3af);
-    gap: 10px;
+    gap: 16px;
     text-align: center;
     background: #fff;
-    border: 1px solid var(--gray-200, #e5e7eb);
-    border-radius: 12px;
+    border: 1px dashed var(--gray-300, #d1d5db);
+    border-radius: 16px;
 }
 
 .np-empty h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 18px;
     color: var(--gray-600, #4b5563);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .np-empty p {
     margin: 0;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
 }
 
-/* ── Notification Item ── */
+/* ── Notification Item (Fluent Floating Card) ── */
 .np-item {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 18px;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
     background: #fff;
-    border: 1px solid var(--gray-200, #e5e7eb);
-    border-radius: 10px;
-    transition: all 0.15s ease;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 16px;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
     position: relative;
-    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .np-item:hover {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border-color: var(--gray-300, #d1d5db);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.08);
 }
 
 .np-item.unread {
-    border-left: 3px solid var(--brand-red, #c0392b);
-    background: linear-gradient(90deg, rgba(192,57,43,0.03) 0%, #fff 60%);
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.02) 0%, #fff 60%);
+    border-color: rgba(37, 99, 235, 0.15);
 }
 
 .np-item.selected {
-    border-color: #6366f1;
-    background: rgba(99,102,241,0.03);
-}
-
-/* ── Unread Right Indicator ── */
-.np-unread-indicator {
-    position: absolute;
-    top: 50%;
-    right: 16px;
-    transform: translateY(-50%);
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--brand-red, #c0392b);
-    box-shadow: 0 0 0 2px rgba(192,57,43,0.18);
-    flex-shrink: 0;
-    pointer-events: none;
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.03);
+    box-shadow: 0 0 0 1px #2563eb;
 }
 
 /* ── Checkbox ── */
 .np-checkbox {
-    width: 15px;
-    height: 15px;
-    accent-color: var(--brand-navy, #1a2744);
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
     cursor: pointer;
     flex-shrink: 0;
+    margin-top: 10px;
 }
 
 /* ── Icon ── */
 .np-item-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 9px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 18px;
     flex-shrink: 0;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 /* ── Content ── */
@@ -233,45 +226,51 @@
     flex: 1;
     min-width: 0;
     cursor: pointer;
-    padding-right: 12px;
+    padding-right: 16px;
 }
 
 .np-item-top {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 10px;
+    margin-bottom: 6px;
 }
 
 .np-item-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 20px;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
     text-transform: uppercase;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.3px;
     white-space: nowrap;
 }
 
 .np-item-time {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--gray-400, #9ca3af);
+    font-weight: 600;
     margin-left: auto;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .np-item-title {
-    margin: 0 0 3px;
-    font-size: 13.5px;
+    margin: 0 0 4px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text-dark, #111827);
-    line-height: 1.35;
+    line-height: 1.4;
+}
+
+.np-item.unread .np-item-title {
+    font-weight: 700;
+    color: #0f172a;
 }
 
 .np-item-msg {
     margin: 0;
-    font-size: 12.5px;
+    font-size: 13.5px;
     color: var(--gray-500, #6b7280);
     line-height: 1.5;
     display: -webkit-box;
@@ -280,43 +279,63 @@
     overflow: hidden;
 }
 
+.np-item.unread .np-item-msg {
+    color: #475569;
+}
+
+/* ── Unread Right Indicator ── */
+.np-unread-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    flex-shrink: 0;
+    margin-top: 17px;
+    margin-right: 6px;
+    animation: pulseDot 2s infinite;
+}
+
 /* ── Action Buttons ── */
 .np-item-actions {
     display: flex;
-    gap: 5px;
+    flex-direction: column;
+    gap: 6px;
     flex-shrink: 0;
     opacity: 0;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.2s ease;
 }
 
 .np-item:hover .np-item-actions { opacity: 1; }
 
 .np-action-btn {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
-    border-radius: 7px;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 13px;
-    transition: all 0.13s ease;
+    font-size: 16px;
+    transition: all 0.2s ease;
     padding: 0;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 
-.np-action-btn.read  { background: rgba(16,185,129,0.1); color: #10b981; }
-.np-action-btn.read:hover  { background: rgba(16,185,129,0.2); }
-.np-action-btn.delete { background: rgba(239,68,68,0.1); color: #ef4444; }
-.np-action-btn.delete:hover { background: rgba(239,68,68,0.2); }
+.np-action-btn.read  { color: #10b981; }
+.np-action-btn.read:hover  { background: #10b981; color: #fff; border-color: #10b981; }
+.np-action-btn.delete { color: #ef4444; }
+.np-action-btn.delete:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
 
 /* ── Pagination ── */
 .np-pagination {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
-    margin-top: 24px;
+    gap: 16px;
+    margin-top: 32px;
 }
 
 .np-page-btn {
@@ -325,11 +344,12 @@
     border-radius: 8px;
     background: #fff;
     color: var(--gray-600, #4b5563);
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     font-family: inherit;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .np-page-btn:hover:not(:disabled) {
@@ -341,12 +361,13 @@
 .np-page-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 .np-page-info {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--gray-500, #6b7280);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* ── Responsive ── */
