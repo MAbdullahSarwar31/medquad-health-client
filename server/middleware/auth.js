@@ -74,4 +74,33 @@ const requireRole = (...roles) => {
     };
 };
 
-module.exports = { protect, requireRole };
+/**
+ * Optional Auth — Decodes token if present but doesn't block if missing
+ */
+const optionalAuth = async (req, res, next) => {
+    try {
+        let token = req.cookies.accessToken;
+
+        if (!token && req.headers.authorization?.startsWith('Bearer')) {
+            token = req.headers.authorization.split(' ')[1];
+        }
+
+        if (!token) {
+            return next();
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        
+        if (user && user.isActive) {
+            req.user = user;
+        }
+        
+        next();
+    } catch (error) {
+        // If token is invalid or expired, just proceed without setting req.user
+        next();
+    }
+};
+
+module.exports = { protect, requireRole, optionalAuth };

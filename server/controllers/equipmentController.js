@@ -26,7 +26,11 @@ const getEquipment = async (req, res, next) => {
         if (category) query.category = category;
         if (manufacturer) query.manufacturer = { $regex: manufacturer, $options: 'i' };
         if (status) query.status = status;
-        if (clientId) query.clientId = clientId;
+        if (req.user && req.user.role === 'client') {
+            query.clientId = req.user.clientId || req.user._id;
+        } else if (clientId) {
+            query.clientId = clientId;
+        }
 
         // Full-text search on name, model, description, manufacturer
         if (search) {

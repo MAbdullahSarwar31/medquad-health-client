@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { getEquipment, getEquipmentById, createEquipment, updateEquipment, deleteEquipment } = require('../controllers/equipmentController');
-const { protect, requireRole } = require('../middleware/auth');
+const { protect, requireRole, optionalAuth } = require('../middleware/auth');
 const { validateEquipmentCreate, validateIdParam } = require('../middleware/validator');
 
-// Public route — equipment catalog (no auth needed)
-router.get('/', getEquipment);
+// Public route — equipment catalog (no auth needed, but parses if present)
+router.get('/', optionalAuth, getEquipment);
 
 // Protected routes
 router.get('/:id', validateIdParam, protect, getEquipmentById);

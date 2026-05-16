@@ -132,13 +132,12 @@ const createTicket = async (req, res, next) => {
                 else ticketData.priority = 'low';
             }
 
-            // Find an available employee (simplified auto-assignment)
-            // Just picking the first available employee with matching skills or any employee
-            const employee = await User.findOne({ role: 'employee' }); // Simplified logic
+            // Find an available employee (simplified AI suggestion)
+            // In a real system, this would use skills matching and current workload
+            const employee = await User.findOne({ role: 'employee' }); 
             if (employee) {
                 ticketData.suggestedEmployee = employee._id;
-                ticketData.assignedEmployee = employee._id;
-                ticketData.status = 'assigned';
+                // Removed auto-assignment so Admins can manually dedicate the ticket
                 ticketData.estimatedResponseTime = aiResult.priorityScore >= 4 ? 'Within 4 hours' : 'Within 24 hours';
             }
         }
