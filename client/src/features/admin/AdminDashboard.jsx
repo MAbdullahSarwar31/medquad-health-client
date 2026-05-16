@@ -94,7 +94,7 @@ const AdminDashboard = () => {
                     ))}
                 </div>
                 {/* Skeleton charts row */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+                <div className="grid-2" style={{ marginBottom: 24 }}>
                     <div className="skeleton-card"><div className="skeleton skeleton-rect" style={{ height: 280 }} /></div>
                     <div className="skeleton-card"><div className="skeleton skeleton-rect" style={{ height: 280 }} /></div>
                 </div>
@@ -243,7 +243,7 @@ const AdminDashboard = () => {
                         </div>
 
                         {/* Prediction Cards Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '16px', padding: '20px 24px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '16px', padding: '20px 24px' }}>
                             {predictions.map(pred => {
                                 const tier = pred.riskTier || (pred.confidence >= 0.75 ? 'critical' : pred.confidence >= 0.55 ? 'high' : 'moderate');
                                 const tierStyles = {
@@ -362,7 +362,7 @@ const AdminDashboard = () => {
                 })()}
 
             {/* Charts */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+            <div className="grid-2" style={{ marginBottom: 24 }}>
                 {/* Trend Chart */}
                 <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 flex flex-col">
                     <h2 className="text-base font-bold text-slate-800 mb-6">Ticket Volume (7 Days)</h2>

@@ -78,7 +78,7 @@ const PrintReceipt = ({ claim, user }) => {
             </div>
 
             {/* Employee & Claim Info */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '28px' }}>
+            <div className="grid-2" style={{ marginBottom: '28px' }}>
                 <div>
                     <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Employee Details</div>
                     <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#222' }}>{claim.employeeId?.name || user?.name}</div>

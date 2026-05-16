@@ -70,7 +70,7 @@ function DashboardSkeleton() {
                     </div>
                 ))}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+            <div className="grid-2-1" style={{ gap: 20 }}>
                 <div className="card">
                     <div className="card-header"><div className="skeleton skeleton-text" style={{ width: 160 }} /></div>
                     {[...Array(5)].map((_, i) => (
@@ -204,7 +204,7 @@ const EmployeeDashboard = () => {
             </div>
 
             {/* Main content grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+            <div className="grid-2-1" style={{ gap: 20 }}>
 
                 {/* Prioritized Task Queue */}
                 <div className="card">

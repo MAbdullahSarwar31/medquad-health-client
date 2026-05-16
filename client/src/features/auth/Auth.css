@@ -813,6 +813,8 @@
     .auth-form-card {
         padding: 28px 20px;
         border-radius: 16px;
+        width: 100%;
+        max-width: 100%;
     }
 
     .auth-name-grid {
@@ -820,14 +822,27 @@
     }
 
     .auth-form-panel {
-        padding: 20px 12px;
+        padding: 16px;
     }
 
     .auth-demo-buttons {
         flex-direction: column;
+        width: 100%;
     }
 
     .auth-demo-btn {
         text-align: center;
+        width: 100%;
+        justify-content: center;
+        display: flex;
+    }
+
+    .auth-form-title {
+        font-size: 22px;
+    }
+
+    .auth-submit-btn {
+        padding: 12px 20px;
+        font-size: 14px;
     }
 }

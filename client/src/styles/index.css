@@ -971,6 +971,12 @@ select {
   gap: var(--space-5);
 }
 
+.grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-5);
+}
+
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1103,6 +1109,10 @@ select {
   }
 
   .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .grid-2-1 {
     grid-template-columns: 1fr;
   }
 

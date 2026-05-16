@@ -54,7 +54,7 @@ const PrintReceipt = ({ claim }) => {
                     <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>Generated: {new Date().toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                 </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '28px' }}>
+            <div className="grid-2" style={{ marginBottom: '28px' }}>
                 <div>
                     <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Employee</div>
                     <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#222' }}>{claim.employeeId?.name}</div>

@@ -62,7 +62,7 @@ function DashboardSkeleton() {
             </div>
             <div className="card">
                 <div className="card-header"><div className="skeleton skeleton-text" style={{ width: 120 }} /></div>
-                <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+                <div className="grid-3" style={{ padding: 20 }}>
                     {[...Array(3)].map((_, i) => (
                         <div key={i} className="skeleton skeleton-rect" style={{ height: 80 }} />
                     ))}
