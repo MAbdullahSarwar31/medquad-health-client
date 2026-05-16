@@ -163,6 +163,7 @@ export const predictionsAPI = {
     getAll: () => api.get('/predictions'),
     acknowledge: (id) => api.put(`/predictions/${id}/acknowledge`),
     createTicket: (id) => api.post(`/predictions/${id}/create-ticket`),
+    runAnalysis: () => api.post('/predictions/run'),
 };
 
 export default api;

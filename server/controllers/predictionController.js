@@ -111,4 +111,22 @@ const createPreventiveTicket = async (req, res, next) => {
     }
 };
 
-module.exports = { getPredictions, acknowledgePrediction, createPreventiveTicket };
+/**
+ * @desc    Manually trigger AI predictive maintenance analysis
+ * @route   POST /api/v1/predictions/run
+ * @access  Admin
+ */
+const runPredictions = async (req, res, next) => {
+    try {
+        const { generatePredictions } = require('../services/predictiveMaintenanceService');
+        
+        // Run asynchronously so we don't block the request if it takes a long time
+        generatePredictions().catch(err => console.error('[Predictive Maintenance Error]:', err));
+
+        res.status(200).json({ success: true, message: 'AI Predictive Maintenance Analysis initiated.' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getPredictions, acknowledgePrediction, createPreventiveTicket, runPredictions };

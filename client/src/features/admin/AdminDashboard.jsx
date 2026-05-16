@@ -55,6 +55,17 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleRunAnalysis = async () => {
+        try {
+            await predictionsAPI.runAnalysis();
+            toast.success('AI Analysis initiated. This runs in the background and will update shortly.');
+            // Refetch after a small delay just in case some finished quickly
+            setTimeout(fetchDashboardData, 2000);
+        } catch (err) {
+            toast.error('Failed to start AI analysis');
+        }
+    };
+
     useEffect(() => { fetchDashboardData(); }, []);
 
     const getStatusLabel = (status) => {
@@ -228,12 +239,12 @@ const AdminDashboard = () => {
                                         {critical > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '20px', padding: '2px 10px' }}>🔴 {critical} Critical</span>}
                                         {high > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#D97706', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '20px', padding: '2px 10px' }}>🟡 {high} High</span>}
                                         {moderate > 0 && <span style={{ fontSize: '11px', fontWeight: '700', color: '#1A4DB4', background: '#EBF0FA', border: '1px solid #BFDBFE', borderRadius: '20px', padding: '2px 10px' }}>🔵 {moderate} Moderate</span>}
-                                        <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>• MedQuad AI v2.0</span>
+                                        <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>• MedQuad AI v3.0</span>
                                     </div>
                                 </div>
                             </div>
                             <button
-                                onClick={fetchDashboardData}
+                                onClick={handleRunAnalysis}
                                 style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer', transition: 'all 150ms ease' }}
                                 onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
@@ -312,6 +323,16 @@ const AdminDashboard = () => {
                                                         </li>
                                                     ))}
                                                 </ul>
+                                            </div>
+                                        )}
+
+                                        {/* AI Explanation (v3.0) */}
+                                        {pred.aiExplanation && (
+                                            <div style={{ fontSize: '11.5px', color: '#334155', lineHeight: '1.5', padding: '10px 12px', background: '#F8FAFC', borderRadius: '8px', borderLeft: `3px solid ${s.dot}`, marginBottom: '2px' }}>
+                                                <div style={{ fontSize: '9px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <HiOutlineLightningBolt style={{ color: '#E8192C' }} /> Gemini AI Reasoning
+                                                </div>
+                                                <i style={{ opacity: 0.9 }}>"{pred.aiExplanation}"</i>
                                             </div>
                                         )}
 
@@ -446,10 +467,10 @@ const AdminDashboard = () => {
                                         </td>
                                         <td className="px-5 py-4">
                                             <div className="flex flex-col">
-                                                <span className="font-semibold text-slate-800 text-sm">{ticket.equipment?.name || 'Unknown Equipment'}</span>
+                                                <span className="font-semibold text-slate-800 text-sm">{ticket.equipmentId?.name || ticket.equipment?.name || 'Unknown Equipment'}</span>
                                                 <span className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
                                                     <HiOutlineOfficeBuilding className="text-slate-400" />
-                                                    {ticket.client?.orgName || ticket.client?.name || 'Unknown Client'}
+                                                    {ticket.clientId?.orgName || ticket.clientId?.name || ticket.client?.orgName || 'Unknown Client'}
                                                 </span>
                                             </div>
                                         </td>
