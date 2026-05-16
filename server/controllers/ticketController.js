@@ -1,6 +1,8 @@
 const ServiceTicket = require('../models/ServiceTicket');
 const User = require('../models/User');
 const { analyzeTicketDescription } = require('../services/ticketAIService');
+const { suggestEmployee } = require('../services/ticketRoutingAIService');
+const { analyzeSentiment } = require('../services/sentimentAIService');
 const { notify, getAdminIds } = require('../services/notificationService');
 
 /**
@@ -123,23 +125,62 @@ const createTicket = async (req, res, next) => {
         if (aiResult) {
             ticketData.aiCategory = aiResult.category;
             ticketData.aiPriorityScore = aiResult.priorityScore;
+            ticketData.aiConfidence = aiResult.confidence || null;
+            ticketData.aiReasoning = aiResult.reasoning || null;
+            ticketData.aiUrgencyKeywords = aiResult.urgencyKeywords || [];
             
-            // Map priority score to priority string
+            // Map AI priority score to priority string (if not manually set)
             if (!priority) {
                 if (aiResult.priorityScore >= 4) ticketData.priority = 'critical';
                 else if (aiResult.priorityScore === 3) ticketData.priority = 'high';
                 else if (aiResult.priorityScore === 2) ticketData.priority = 'medium';
                 else ticketData.priority = 'low';
             }
+            ticketData.estimatedResponseTime = aiResult.priorityScore >= 4 ? 'Within 4 hours' : 'Within 24 hours';
+        }
 
-            // Find an available employee (simplified AI suggestion)
-            // In a real system, this would use skills matching and current workload
-            const employee = await User.findOne({ role: 'employee' }); 
-            if (employee) {
-                ticketData.suggestedEmployee = employee._id;
-                // Removed auto-assignment so Admins can manually dedicate the ticket
-                ticketData.estimatedResponseTime = aiResult.priorityScore >= 4 ? 'Within 4 hours' : 'Within 24 hours';
+        // AI Intelligent Ticket Routing — suggest best-matched employee
+        try {
+            const allEmployees = await User.find({ role: 'employee', isActive: true }).lean();
+            // Enrich employees with workload metrics
+            const enrichedEmployees = await Promise.all(allEmployees.map(async (emp) => {
+                const [openTicketCount, resolvedTickets] = await Promise.all([
+                    ServiceTicket.countDocuments({ assignedEmployee: emp._id, status: { $in: ['open', 'assigned', 'in-progress'] } }),
+                    ServiceTicket.find({ assignedEmployee: emp._id, status: { $in: ['resolved', 'closed'] } })
+                        .select('aiCategory resolvedAt createdAt').limit(10).lean(),
+                ]);
+                const recentCategories = [...new Set(resolvedTickets.map(t => t.aiCategory).filter(Boolean))];
+                const avgResolutionDays = resolvedTickets.length > 0
+                    ? resolvedTickets.reduce((acc, t) => {
+                        if (t.resolvedAt && t.createdAt) {
+                            return acc + (new Date(t.resolvedAt) - new Date(t.createdAt)) / (1000 * 60 * 60 * 24);
+                        }
+                        return acc;
+                    }, 0) / resolvedTickets.length
+                    : null;
+                return { ...emp, openTicketCount, recentCategories, totalResolved: resolvedTickets.length, avgResolutionDays };
+            }));
+
+            // Build a temporary ticket context for routing
+            const Equipment = require('../models/Equipment');
+            const Client = require('../models/Client');
+            const eqDoc = equipmentId ? await Equipment.findById(equipmentId).lean() : null;
+            const clDoc = ticketData.clientId ? await Client.findById(ticketData.clientId).lean() : null;
+            const tempTicket = {
+                ...ticketData,
+                equipmentId: eqDoc || { category: ticketData.aiCategory },
+                clientId: clDoc || {},
+                aiReasoning: ticketData.aiReasoning,
+            };
+
+            const routingResult = await suggestEmployee(tempTicket, enrichedEmployees);
+            if (routingResult?.recommendedEmployeeId) {
+                ticketData.suggestedEmployee = routingResult.recommendedEmployeeId;
+                ticketData.aiRoutingReasoning = routingResult.matchReason || null;
+                console.log(`[Routing AI] Suggested: ${routingResult.recommendedEmployeeName} (${Math.round((routingResult.confidenceScore || 0) * 100)}% match)`);
             }
+        } catch (routingErr) {
+            console.warn('[Routing AI] Routing suggestion failed (non-fatal):', routingErr.message);
         }
 
         const ticket = await ServiceTicket.create(ticketData);
@@ -355,6 +396,51 @@ const addTicketUpdate = async (req, res, next) => {
                 sendEmail: false,
                 io
             });
+        }
+
+        // AI Sentiment Analysis — run on client messages to detect frustration & escalation need
+        if (req.user.role === 'client' && message) {
+            try {
+                const fullTicket = await ServiceTicket.findById(ticket._id)
+                    .populate('equipmentId', 'name').lean();
+                const daysSinceCreated = fullTicket?.createdAt
+                    ? Math.floor((Date.now() - new Date(fullTicket.createdAt)) / (1000 * 60 * 60 * 24))
+                    : null;
+
+                const sentimentResult = await analyzeSentiment(message, {
+                    priority: fullTicket?.priority,
+                    equipmentName: fullTicket?.equipmentId?.name,
+                    daysSinceCreated,
+                    status: fullTicket?.status,
+                });
+
+                if (sentimentResult) {
+                    const updateFields = {
+                        sentimentScore: sentimentResult.sentimentScore,
+                    };
+                    if (sentimentResult.escalationNeeded) {
+                        updateFields.escalationFlag = true;
+                        updateFields.escalationReason = sentimentResult.escalationReason;
+
+                        // Notify admins of escalation
+                        const adminIds = await getAdminIds();
+                        await notify({
+                            recipientId: adminIds,
+                            type: 'ticket_escalated',
+                            title: 'AI Escalation Alert — Client Distress Detected',
+                            message: `Sentiment AI detected client frustration on ticket. Reason: ${sentimentResult.escalationReason?.substring(0, 80)}`,
+                            link: '/admin/tickets',
+                            metadata: { ticketId: updated._id },
+                            sendEmail: true,
+                            io: req.app.get('io'),
+                        });
+                        console.log(`[Sentiment AI] Escalation flagged for ticket ${ticket._id}: ${sentimentResult.escalationReason}`);
+                    }
+                    await ServiceTicket.findByIdAndUpdate(ticket._id, updateFields);
+                }
+            } catch (sentimentErr) {
+                console.warn('[Sentiment AI] Analysis failed (non-fatal):', sentimentErr.message);
+            }
         }
 
         res.status(200).json({ success: true, data: { ticket: updated } });

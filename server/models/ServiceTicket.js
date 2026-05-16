@@ -81,9 +81,29 @@ const serviceTicketSchema = new mongoose.Schema(
             max: 5,
             default: null,
         },
+        // NLP v2.0 — few-shot classification outputs
+        aiConfidence: {
+            type: Number,
+            min: 0,
+            max: 1,
+            default: null,
+        },
+        aiReasoning: {
+            type: String,
+            default: null,
+        },
+        aiUrgencyKeywords: {
+            type: [String],
+            default: [],
+        },
+        // AI-suggested employee from routing engine
         suggestedEmployee: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
+            default: null,
+        },
+        aiRoutingReasoning: {
+            type: String,
             default: null,
         },
         updates: [ticketUpdateSchema],
@@ -96,6 +116,19 @@ const serviceTicketSchema = new mongoose.Schema(
             default: null,
         },
         estimatedResponseTime: {
+            type: String,
+            default: null,
+        },
+        // Sentiment Analysis — runs on client updates
+        sentimentScore: {
+            type: Number,  // -1.0 (very negative) to 1.0 (very positive)
+            default: null,
+        },
+        escalationFlag: {
+            type: Boolean,
+            default: false,
+        },
+        escalationReason: {
             type: String,
             default: null,
         },

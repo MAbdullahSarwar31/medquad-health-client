@@ -1,4 +1,5 @@
 const { notify, getAdminIds } = require('../services/notificationService');
+const { generateEquipmentReport } = require('../services/equipmentReportAIService');
 const Equipment = require('../models/Equipment');
 
 /**
@@ -26,6 +27,8 @@ const getEquipment = async (req, res, next) => {
         if (category) query.category = category;
         if (manufacturer) query.manufacturer = { $regex: manufacturer, $options: 'i' };
         if (status) query.status = status;
+
+        // Client should only see their own equipment
         if (req.user && req.user.role === 'client') {
             query.clientId = req.user.clientId || req.user._id;
         } else if (clientId) {
@@ -97,6 +100,55 @@ const getEquipmentById = async (req, res, next) => {
 };
 
 /**
+ * @desc    Generate AI Health Report for a specific equipment
+ * @route   GET /api/v1/equipment/:id/ai-report
+ * @access  Admin only
+ * 
+ * Academic Concepts: RAG (Retrieval-Augmented Generation),
+ * Data-to-Text Generation, Summarization, Explainable AI (XAI)
+ */
+const getEquipmentAIReport = async (req, res, next) => {
+    try {
+        const equipment = await Equipment.findById(req.params.id)
+            .populate('clientId', 'orgName');
+
+        if (!equipment) {
+            return res.status(404).json({ success: false, message: 'Equipment not found' });
+        }
+
+        // RAG: Fetch all relevant context from DB before calling AI
+        const ServiceTicket = require('../models/ServiceTicket');
+        const MaintenancePrediction = require('../models/MaintenancePrediction');
+
+        const [tickets, predictions] = await Promise.all([
+            ServiceTicket.find({ equipmentId: equipment._id })
+                .sort({ createdAt: -1 }).limit(10).lean(),
+            MaintenancePrediction.find({ equipmentId: equipment._id, isAcknowledged: false })
+                .sort({ confidence: -1 }).lean(),
+        ]);
+
+        const report = await generateEquipmentReport(equipment, tickets, predictions);
+
+        if (!report) {
+            return res.status(503).json({
+                success: false,
+                message: 'AI report generation failed. Please try again later.',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                report,
+                equipment: { name: equipment.name, id: equipment._id, category: equipment.category },
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
  * @desc    Create new equipment
  * @route   POST /api/v1/equipment
  * @access  Admin only
@@ -104,10 +156,19 @@ const getEquipmentById = async (req, res, next) => {
 const createEquipment = async (req, res, next) => {
     try {
         const equipment = await Equipment.create(req.body);
-        // NOTIF: equipment_added
-        const io6 = req.app.get('io');
-        const adminIds6 = await getAdminIds();
-        await notify({ recipientId: adminIds6, type: 'equipment_added', title: 'New Equipment Added', message: `New equipment "${equipment.name}" (${equipment.category}) has been registered in the system.`, link: '/admin/equipment', buttonText: 'View Equipment', metadata: { equipmentId: equipment._id }, sendEmail: false, io: io6 });
+        const io = req.app.get('io');
+        const adminIds = await getAdminIds();
+        await notify({
+            recipientId: adminIds,
+            type: 'equipment_added',
+            title: 'New Equipment Added',
+            message: `New equipment "${equipment.name}" (${equipment.category}) has been registered in the system.`,
+            link: '/admin/equipment',
+            buttonText: 'View Equipment',
+            metadata: { equipmentId: equipment._id },
+            sendEmail: false,
+            io,
+        });
 
         res.status(201).json({ success: true, data: { equipment } });
     } catch (error) {
@@ -152,4 +213,4 @@ const deleteEquipment = async (req, res, next) => {
     }
 };
 
-module.exports = { getEquipment, getEquipmentById, createEquipment, updateEquipment, deleteEquipment };
+module.exports = { getEquipment, getEquipmentById, getEquipmentAIReport, createEquipment, updateEquipment, deleteEquipment };

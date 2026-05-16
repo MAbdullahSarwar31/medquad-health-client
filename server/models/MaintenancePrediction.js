@@ -40,6 +40,11 @@ const maintenancePredictionSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        // AI-generated engineering explanation (XAI — Explainable AI)
+        aiExplanation: {
+            type: String,
+            default: null,
+        },
         isAcknowledged: {
             type: Boolean,
             default: false,
