@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { equipmentAPI } from '../../services/api';
-import { HiOutlineDesktopComputer, HiOutlineRefresh, HiOutlineSearch } from 'react-icons/hi';
+import { equipmentAPI, equipmentRequestsAPI } from '../../services/api';
+import { HiOutlineDesktopComputer, HiOutlineRefresh, HiOutlineSearch, HiPlus } from 'react-icons/hi';
+import toast from 'react-hot-toast';
 
 const getStatusObj = (status) => {
     if (status === 'operational') return { label: 'Operational', cls: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' };
@@ -15,6 +16,10 @@ const ClientEquipment = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
 
+    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    const [requestForm, setRequestForm] = useState({ requestType: 'add', name: '', category: '', manufacturer: '', model: '', serialNumber: '', equipmentId: '', clientNotes: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const fetchEquipment = async () => {
         setLoading(true);
         try {
@@ -28,6 +33,26 @@ const ClientEquipment = () => {
     };
 
     useEffect(() => { fetchEquipment(); }, []);
+
+    const handleRequestSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            await equipmentRequestsAPI.create({
+                requestType: requestForm.requestType,
+                equipmentDetails: requestForm.requestType === 'add' ? requestForm : undefined,
+                equipmentId: requestForm.requestType === 'remove' ? requestForm.equipmentId : undefined,
+                clientNotes: requestForm.clientNotes
+            });
+            toast.success(`Equipment ${requestForm.requestType} request submitted successfully.`);
+            setIsRequestModalOpen(false);
+            setRequestForm({ requestType: 'add', name: '', category: '', manufacturer: '', model: '', serialNumber: '', equipmentId: '', clientNotes: '' });
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to submit request.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const filtered = equipment.filter(e => {
         const matchSearch = !search
@@ -61,6 +86,13 @@ const ClientEquipment = () => {
                     <h1 className="text-2xl font-bold text-slate-800 mb-1">My Equipment</h1>
                     <p className="text-slate-500 text-sm">All medical devices registered to your organization.</p>
                 </div>
+                <button
+                    onClick={() => setIsRequestModalOpen(true)}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#3B82F6] text-white rounded-xl font-semibold hover:bg-blue-600 active:scale-95 transition-all shadow-md shadow-blue-500/20"
+                >
+                    <HiPlus className="text-xl" />
+                    <span>Request Update</span>
+                </button>
             </div>
 
             {/* Summary KPI Cards */}
@@ -217,6 +249,66 @@ const ClientEquipment = () => {
                 <p className="text-xs text-slate-400 mt-4 text-center">
                     Showing {filtered.length} of {totalEquipment} devices
                 </p>
+            )}
+
+            {/* Request Equipment Modal */}
+            {isRequestModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <h2 className="text-lg font-bold text-slate-800">Request Equipment Change</h2>
+                            <button onClick={() => setIsRequestModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+                        </div>
+                        <form onSubmit={handleRequestSubmit} className="p-5 space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Request Type</label>
+                                <select value={requestForm.requestType} onChange={e => setRequestForm({...requestForm, requestType: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="add">Add New Equipment</option>
+                                    <option value="remove">Remove Equipment</option>
+                                </select>
+                            </div>
+
+                            {requestForm.requestType === 'add' ? (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-1">Name / Model <span className="text-red-500">*</span></label>
+                                        <input required type="text" placeholder="e.g. GE Optima CT" value={requestForm.name} onChange={e => setRequestForm({...requestForm, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-700 mb-1">Manufacturer</label>
+                                            <input type="text" value={requestForm.manufacturer} onChange={e => setRequestForm({...requestForm, manufacturer: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-700 mb-1">Category</label>
+                                            <input type="text" value={requestForm.category} onChange={e => setRequestForm({...requestForm, category: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1">Select Equipment <span className="text-red-500">*</span></label>
+                                    <select required value={requestForm.equipmentId} onChange={e => setRequestForm({...requestForm, equipmentId: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="">Select...</option>
+                                        {equipment.map(eq => <option key={eq._id} value={eq._id}>{eq.name} ({eq.serialNumber})</option>)}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Additional Notes</label>
+                                <textarea placeholder="Reason for request, exact specs, etc." value={requestForm.clientNotes} onChange={e => setRequestForm({...requestForm, clientNotes: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" rows="3"></textarea>
+                            </div>
+
+                            <div className="pt-2 flex justify-end gap-2">
+                                <button type="button" onClick={() => setIsRequestModalOpen(false)} className="px-4 py-2 border rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Cancel</button>
+                                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-[#3B82F6] text-white rounded-lg text-sm font-semibold hover:bg-blue-600 disabled:opacity-70 transition-colors shadow-md shadow-blue-500/20">
+                                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
         </div>
     );

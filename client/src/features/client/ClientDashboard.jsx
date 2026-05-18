@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ticketsAPI, equipmentAPI, equipmentRequestsAPI } from '../../services/api';
+import { ticketsAPI, equipmentAPI } from '../../services/api';
 import {
     MdBuild, MdConfirmationNumber, MdCheckCircle,
-    MdSchedule, MdArrowForward, MdReceipt, MdWarning, MdAdd
+    MdSchedule, MdArrowForward, MdReceipt, MdWarning
 } from 'react-icons/md';
 import { FiCheckSquare } from 'react-icons/fi';
-import toast from 'react-hot-toast';
 import './ClientDashboard.css';
 
 /* ── Status / Priority helpers ── */
@@ -80,9 +79,6 @@ const ClientDashboard = () => {
     const [equipment, setEquipment] = useState([]);
     const [tickets,   setTickets]   = useState([]);
     const [loading,   setLoading]   = useState(true);
-    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-    const [requestForm, setRequestForm] = useState({ requestType: 'add', name: '', category: '', manufacturer: '', model: '', serialNumber: '', equipmentId: '', clientNotes: '' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         Promise.all([
@@ -107,26 +103,6 @@ const ClientDashboard = () => {
     const lastServiceDate   = tickets
         .filter(t => t.status === 'resolved' || t.status === 'closed')
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]?.updatedAt;
-
-    const handleRequestSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        try {
-            await equipmentRequestsAPI.create({
-                requestType: requestForm.requestType,
-                equipmentDetails: requestForm.requestType === 'add' ? requestForm : undefined,
-                equipmentId: requestForm.requestType === 'remove' ? requestForm.equipmentId : undefined,
-                clientNotes: requestForm.clientNotes
-            });
-            toast.success(`Equipment ${requestForm.requestType} request submitted successfully.`);
-            setIsRequestModalOpen(false);
-            setRequestForm({ requestType: 'add', name: '', category: '', manufacturer: '', model: '', serialNumber: '', equipmentId: '', clientNotes: '' });
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to submit request.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     if (loading) return <DashboardSkeleton />;
 
@@ -159,8 +135,8 @@ const ClientDashboard = () => {
 
     const quickActions = [
         { icon: <MdConfirmationNumber />, label: 'Request Service', sub: 'Submit a new service ticket', path: '/client/tickets?new=1', color: 'var(--brand-red)' },
-        { icon: <MdAdd />,               label: 'Add/Remove Eq.', sub: 'Request equipment updates',   action: () => setIsRequestModalOpen(true), color: 'var(--brand-navy)' },
         { icon: <MdBuild />,             label: 'View Equipment',  sub: 'Check status & warranty info', path: '/client/equipment',    color: 'var(--brand-navy)' },
+        { icon: <MdReceipt />,           label: 'My Invoices',     sub: 'View billing & invoices',       path: '/client/invoices',      color: '#16A34A' },
     ];
 
     return (
@@ -391,66 +367,6 @@ const ClientDashboard = () => {
                     ))}
                 </div>
             </div>
-
-            {/* Request Equipment Modal */}
-            {isRequestModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                            <h2 className="text-lg font-bold text-slate-800">Request Equipment Change</h2>
-                            <button onClick={() => setIsRequestModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
-                        </div>
-                        <form onSubmit={handleRequestSubmit} className="p-5 space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-1">Request Type</label>
-                                <select value={requestForm.requestType} onChange={e => setRequestForm({...requestForm, requestType: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm">
-                                    <option value="add">Add New Equipment</option>
-                                    <option value="remove">Remove Equipment</option>
-                                </select>
-                            </div>
-
-                            {requestForm.requestType === 'add' ? (
-                                <>
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Name / Model <span className="text-red-500">*</span></label>
-                                        <input required type="text" placeholder="e.g. GE Optima CT" value={requestForm.name} onChange={e => setRequestForm({...requestForm, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm" />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-1">Manufacturer</label>
-                                            <input type="text" value={requestForm.manufacturer} onChange={e => setRequestForm({...requestForm, manufacturer: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-1">Category</label>
-                                            <input type="text" value={requestForm.category} onChange={e => setRequestForm({...requestForm, category: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm" />
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1">Select Equipment <span className="text-red-500">*</span></label>
-                                    <select required value={requestForm.equipmentId} onChange={e => setRequestForm({...requestForm, equipmentId: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm">
-                                        <option value="">Select...</option>
-                                        {equipment.map(eq => <option key={eq._id} value={eq._id}>{eq.name} ({eq.serialNumber})</option>)}
-                                    </select>
-                                </div>
-                            )}
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-1">Additional Notes</label>
-                                <textarea placeholder="Reason for request, exact specs, etc." value={requestForm.clientNotes} onChange={e => setRequestForm({...requestForm, clientNotes: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm" rows="3"></textarea>
-                            </div>
-
-                            <div className="pt-2 flex justify-end gap-2">
-                                <button type="button" onClick={() => setIsRequestModalOpen(false)} className="px-4 py-2 border rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Cancel</button>
-                                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-[#1A4DB4] text-white rounded-lg text-sm font-semibold hover:bg-blue-800 disabled:opacity-70 transition-colors">
-                                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
 
         </div>
     );

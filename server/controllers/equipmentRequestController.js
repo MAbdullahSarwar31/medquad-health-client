@@ -13,14 +13,15 @@ const createRequest = async (req, res, next) => {
             return res.status(403).json({ success: false, message: 'Only clients can request equipment changes.' });
         }
 
-        if (!req.user.clientId) {
-            return res.status(400).json({ success: false, message: 'Your account is not linked to a Client organization. Please contact support.' });
+        const clientId = req.user.clientId || req.user._id;
+        if (!clientId) {
+            return res.status(400).json({ success: false, message: 'Could not identify client ID.' });
         }
 
         const { requestType, equipmentDetails, equipmentId, clientNotes } = req.body;
 
         const newRequest = await EquipmentRequest.create({
-            clientId: req.user.clientId,
+            clientId: clientId,
             requestedBy: req.user._id,
             requestType,
             equipmentDetails: requestType === 'add' ? equipmentDetails : undefined,
@@ -54,10 +55,8 @@ const getRequests = async (req, res, next) => {
     try {
         const query = {};
         if (req.user.role === 'client') {
-            if (!req.user.clientId) {
-                return res.status(200).json({ success: true, data: { requests: [] } });
-            }
-            query.clientId = req.user.clientId;
+            const clientId = req.user.clientId || req.user._id;
+            query.clientId = clientId;
         }
 
         if (req.query.status) {
