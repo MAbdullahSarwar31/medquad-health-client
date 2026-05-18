@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { equipmentAPI, clientsAPI } from '../../services/api';
+import { equipmentAPI, clientsAPI, equipmentRequestsAPI } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import {
     MdSearch, MdFilterList,
@@ -14,6 +14,9 @@ const AdminEquipment = () => {
     const [openMenuId, setOpenMenuId] = useState(null);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, pages: 1 });
+    const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' or 'requests'
+    const [requests, setRequests] = useState([]);
+    const [loadingRequests, setLoadingRequests] = useState(false);
 
     // Filters
     const [searchTerm, setSearchTerm] = useState('');
@@ -68,7 +71,32 @@ const AdminEquipment = () => {
             }
         };
         fetchInitialData();
+        fetchRequests();
     }, []);
+
+    const fetchRequests = async () => {
+        setLoadingRequests(true);
+        try {
+            const res = await equipmentRequestsAPI.getAll({ status: 'pending' });
+            setRequests(res.data.data.requests || []);
+        } catch (err) {
+            console.error('Failed to load requests:', err);
+        } finally {
+            setLoadingRequests(false);
+        }
+    };
+
+    const handleRequestAction = async (requestId, status) => {
+        try {
+            const toastId = toast.loading(`Processing request...`);
+            await equipmentRequestsAPI.updateStatus(requestId, { status, adminNotes: `Admin ${status} the request.` });
+            toast.success(`Request ${status} successfully!`, { id: toastId });
+            fetchRequests();
+            if (status === 'approved') fetchEquipment(1, searchTerm, statusFilter, categoryFilter); // Refresh inventory
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to process request');
+        }
+    };
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -242,8 +270,63 @@ const AdminEquipment = () => {
                 </button>
             </div>
 
-            {/* Controls section */}
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col lg:flex-row gap-4 justify-between items-center">
+            {/* TABS */}
+            <div className="flex gap-4 border-b border-slate-200 mb-6">
+                <button 
+                    onClick={() => setActiveTab('inventory')}
+                    className={`pb-3 px-2 font-bold text-sm transition-colors border-b-2 ${activeTab === 'inventory' ? 'border-[#3B82F6] text-[#3B82F6]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                >
+                    Inventory
+                </button>
+                <button 
+                    onClick={() => setActiveTab('requests')}
+                    className={`pb-3 px-2 font-bold text-sm transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'requests' ? 'border-[#3B82F6] text-[#3B82F6]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                >
+                    Pending Requests
+                    {requests.length > 0 && <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{requests.length}</span>}
+                </button>
+            </div>
+
+            {activeTab === 'requests' ? (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h2 className="text-lg font-bold text-slate-800 mb-4">Client Equipment Requests</h2>
+                    {loadingRequests ? (
+                        <div className="py-10 text-center text-slate-400">Loading requests...</div>
+                    ) : requests.length === 0 ? (
+                        <div className="py-10 text-center text-slate-400 font-medium">No pending requests.</div>
+                    ) : (
+                        <div className="space-y-4">
+                            {requests.map(req => (
+                                <div key={req._id} className="p-4 border border-slate-100 rounded-xl bg-slate-50 flex flex-col md:flex-row justify-between gap-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide ${req.requestType === 'add' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+                                                {req.requestType} request
+                                            </span>
+                                            <span className="text-sm font-semibold text-slate-800">{req.clientId?.orgName}</span>
+                                        </div>
+                                        <div className="text-sm text-slate-600">
+                                            {req.requestType === 'add' ? (
+                                                <p><b>Equipment:</b> {req.equipmentDetails?.name} ({req.equipmentDetails?.model}) - {req.equipmentDetails?.manufacturer}</p>
+                                            ) : (
+                                                <p><b>Equipment:</b> {req.equipmentId?.name} (SN: {req.equipmentId?.serialNumber})</p>
+                                            )}
+                                            {req.clientNotes && <p className="mt-1 italic text-slate-500 text-xs">Note: "{req.clientNotes}"</p>}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        <button onClick={() => handleRequestAction(req._id, 'rejected')} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-100">Reject</button>
+                                        <button onClick={() => handleRequestAction(req._id, 'approved')} className="px-4 py-2 bg-[#1A4DB4] text-white rounded-lg text-sm font-semibold hover:bg-blue-800">Approve</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <>
+                    {/* Controls section */}
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col lg:flex-row gap-4 justify-between items-center">
                 <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1">
                     <div className="relative flex-1 max-w-md">
                         <MdSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xl" />
@@ -395,6 +478,8 @@ const AdminEquipment = () => {
                     </div>
                 )}
             </div>
+                </>
+            )}
 
             {/* DELETE CONFIRMATION MODAL */}
             {isDeleteModalOpen && (

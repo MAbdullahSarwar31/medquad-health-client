@@ -166,4 +166,13 @@ export const predictionsAPI = {
     runAnalysis: () => api.post('/predictions/run'),
 };
 
+// ===========================
+//  EQUIPMENT REQUESTS API
+// ===========================
+export const equipmentRequestsAPI = {
+    getAll: (params) => api.get('/equipment-requests', { params }),
+    create: (data) => api.post('/equipment-requests', data),
+    updateStatus: (id, data) => api.put(`/equipment-requests/${id}/status`, data),
+};
+
 export default api;

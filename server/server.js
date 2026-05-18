@@ -107,6 +107,7 @@ app.use('/api/v1/invoices', require('./routes/invoiceRoutes'));
 app.use('/api/v1/chat',          require('./routes/chatRoutes'));           // AI chatbot (public)
 app.use('/api/v1/predictions',   require('./routes/predictionRoutes'));    // AI Predictive Maintenance
 app.use('/api/v1/notifications', require('./routes/notificationRoutes')); // Notification Center
+app.use('/api/v1/equipment-requests', require('./routes/equipmentRequestRoutes')); // Equipment Add/Remove Requests
 
 
 // ---------------------

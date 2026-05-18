@@ -10,6 +10,7 @@ const generateAccessToken = (user) => {
             email: user.email,
             role: user.role,
             name: user.name,
+            clientId: user.clientId, // FIX: Ensure clientId is in the token for filtering
         },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m' }
