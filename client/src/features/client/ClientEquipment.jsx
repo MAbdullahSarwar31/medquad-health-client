@@ -270,18 +270,28 @@ const ClientEquipment = () => {
 
                             {requestForm.requestType === 'add' ? (
                                 <>
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Name / Model <span className="text-red-500">*</span></label>
-                                        <input required type="text" placeholder="e.g. GE Optima CT" value={requestForm.name} onChange={e => setRequestForm({...requestForm, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-                                    </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
+                                            <label className="block text-sm font-bold text-slate-700 mb-1">Name <span className="text-red-500">*</span></label>
+                                            <input required type="text" placeholder="e.g. Optima CT" value={requestForm.name} onChange={e => setRequestForm({...requestForm, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-700 mb-1">Model <span className="text-red-500">*</span></label>
+                                            <input required type="text" placeholder="e.g. 660" value={requestForm.model} onChange={e => setRequestForm({...requestForm, model: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div className="col-span-1">
+                                            <label className="block text-sm font-bold text-slate-700 mb-1">Category</label>
+                                            <input type="text" value={requestForm.category} onChange={e => setRequestForm({...requestForm, category: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        </div>
+                                        <div className="col-span-1">
                                             <label className="block text-sm font-bold text-slate-700 mb-1">Manufacturer</label>
                                             <input type="text" value={requestForm.manufacturer} onChange={e => setRequestForm({...requestForm, manufacturer: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-1">Category</label>
-                                            <input type="text" value={requestForm.category} onChange={e => setRequestForm({...requestForm, category: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        <div className="col-span-1">
+                                            <label className="block text-sm font-bold text-slate-700 mb-1">Serial No. <span className="text-red-500">*</span></label>
+                                            <input required type="text" placeholder="e.g. SN-12345" value={requestForm.serialNumber} onChange={e => setRequestForm({...requestForm, serialNumber: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                                         </div>
                                     </div>
                                 </>

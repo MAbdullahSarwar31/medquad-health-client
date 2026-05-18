@@ -104,10 +104,10 @@ const updateRequestStatus = async (req, res, next) => {
                 await Equipment.create({
                     clientId: request.clientId,
                     name: request.equipmentDetails.name,
-                    category: request.equipmentDetails.category,
-                    manufacturer: request.equipmentDetails.manufacturer,
-                    model: request.equipmentDetails.model,
-                    serialNumber: request.equipmentDetails.serialNumber,
+                    category: request.equipmentDetails.category || 'Uncategorized',
+                    manufacturer: request.equipmentDetails.manufacturer || 'Unknown',
+                    model: request.equipmentDetails.model || 'Unknown Model',
+                    serialNumber: request.equipmentDetails.serialNumber || `REQ-${Date.now().toString().slice(-6)}`,
                     status: 'operational',
                 });
             } else if (request.requestType === 'remove') {

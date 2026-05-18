@@ -108,6 +108,8 @@ app.use('/api/v1/chat',          require('./routes/chatRoutes'));           // A
 app.use('/api/v1/predictions',   require('./routes/predictionRoutes'));    // AI Predictive Maintenance
 app.use('/api/v1/notifications', require('./routes/notificationRoutes')); // Notification Center
 app.use('/api/v1/equipment-requests', require('./routes/equipmentRequestRoutes')); // Equipment Add/Remove Requests
+app.use('/api/v1/fix', require('./routes/fixRoutes')); // Temporary fix route
+
 
 
 // ---------------------
